@@ -389,7 +389,7 @@
   }
 
   function styleFeature(feature) {
-    const code = feature.properties.NTACode || feature.properties.ntacode;
+    const code = feature.properties.NTA2020 || feature.properties.NTACode || feature.properties.ntacode;
     const score = scores[code] !== undefined ? scores[code] : null;
     return {
       fillColor: getColor(score),
@@ -407,7 +407,7 @@
         lyr.setStyle({ weight: 1.5, color: '#60a5fa', opacity: 1, fillOpacity: 0.85 });
         lyr.bringToFront();
         const props = feature.properties;
-        const code = props.NTACode || props.ntacode;
+        const code = props.NTA2020 || props.NTACode || props.ntacode;
         const name = props.NTAName || props.ntaname || 'Unknown';
         const score = scores[code];
         updateHoverPanel(name, code, score);
@@ -464,7 +464,7 @@
       complete: function(results) {
         scores = {};
         results.data.forEach(row => {
-          const code = (row.NTACode || row.ntacode || '').trim();
+          const code = (row.NTA2020 || row.NTACode || row.ntacode || '').trim();
           const val = parseFloat(row.Score || row.score);
           if (code && !isNaN(val)) scores[code] = Math.max(0, Math.min(1, val));
         });
@@ -507,7 +507,7 @@
 
     const nameMap = {};
     ntaData.features.forEach(f => {
-      const code = f.properties.NTACode || f.properties.ntacode;
+      const code = f.properties.NTA2020 || f.properties.NTACode || f.properties.ntacode;
       const name = f.properties.NTAName || f.properties.ntaname || code;
       nameMap[code] = name;
     });
