@@ -6,7 +6,6 @@
   <title>NYC NTA Bus Need Map</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
@@ -17,13 +16,8 @@
       --panel: #13161e;
       --border: #1f2535;
       --accent: #3b82f6;
-      --accent2: #06b6d4;
       --text: #e2e8f0;
       --muted: #64748b;
-      --low: #1e3a5f;
-      --mid: #2563eb;
-      --high: #f97316;
-      --veryhigh: #ef4444;
     }
 
     body {
@@ -61,41 +55,6 @@
       font-family: 'IBM Plex Mono', monospace;
     }
 
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .btn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 14px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    .upload-btn {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      position: relative;
-      overflow: hidden;
-    }
-    .upload-btn:hover { background: #2563eb; }
-    .upload-btn input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer;
-    }
-
     .status-badge {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
@@ -104,18 +63,14 @@
       border: 1px solid var(--border);
       color: var(--muted);
     }
-    .status-badge.loaded { border-color: #22c55e55; color: #22c55e; background: #22c55e11; }
-
-    main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
+    .status-badge.loaded {
+      border-color: #22c55e55;
+      color: #22c55e;
+      background: #22c55e11;
     }
 
-    #map {
-      flex: 1;
-      background: #0a0c10;
-    }
+    main { display: flex; flex: 1; overflow: hidden; }
+    #map { flex: 1; background: #0a0c10; }
 
     aside {
       width: 240px;
@@ -145,7 +100,7 @@
     .legend-bar {
       height: 10px;
       border-radius: 3px;
-      background: linear-gradient(to right, #1e3a5f, #2563eb, #f59e0b, #ef4444);
+      background: linear-gradient(to right, #fca5a5, #ef4444, #7f1d1d);
       margin-bottom: 6px;
     }
     .legend-labels {
@@ -170,10 +125,8 @@
       color: var(--text);
     }
 
-    #tooltip-panel {
-      padding: 16px;
-      flex: 1;
-    }
+    #tooltip-panel { padding: 16px; flex: 1; }
+
     .tooltip-name {
       font-size: 13px;
       font-weight: 600;
@@ -198,7 +151,7 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 28px;
       font-weight: 600;
-      color: var(--accent);
+      color: #ef4444;
     }
     .tooltip-bar-wrap {
       margin-top: 10px;
@@ -209,15 +162,11 @@
     }
     .tooltip-bar-fill {
       height: 100%;
-      background: linear-gradient(to right, var(--accent), var(--high));
+      background: linear-gradient(to right, #fca5a5, #7f1d1d);
       border-radius: 2px;
       transition: width 0.3s;
     }
-    .tooltip-empty {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .tooltip-empty { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
     .top-list { list-style: none; }
     .top-list li {
@@ -234,14 +183,10 @@
       color: var(--muted);
       width: 16px;
     }
-    .top-list .nta-name {
-      flex: 1;
-      padding: 0 6px;
-      color: var(--text);
-    }
+    .top-list .nta-name { flex: 1; padding: 0 6px; color: var(--text); }
     .top-list .nta-score {
       font-family: 'IBM Plex Mono', monospace;
-      color: var(--high);
+      color: #ef4444;
       font-weight: 600;
     }
 
@@ -259,7 +204,6 @@
     .empty-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
     .leaflet-container { background: #0a0c10 !important; }
-
     .leaflet-tile-pane { filter: brightness(0.6) saturate(0.4) hue-rotate(200deg); }
 
     .loading-overlay {
@@ -287,18 +231,6 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .csv-hint {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 8px 10px;
-      margin-top: 10px;
-      line-height: 1.8;
-    }
   </style>
 </head>
 <body>
@@ -313,26 +245,18 @@
     <h1>NYC NTA Bus Need Map</h1>
     <p>Neighborhood Tabulation Areas · 2020 Boundaries</p>
   </div>
-  <div class="controls">
-    <span class="status-badge" id="data-status">No scores loaded</span>
-    <button class="btn" id="border-btn" onclick="toggleBorders()">Borders ON</button>
-    <label class="btn upload-btn">
-      Upload Scores (CSV)
-      <input type="file" accept=".csv" onchange="handleCSV(event)"/>
-    </label>
-  </div>
+  <span class="status-badge" id="data-status">Loading...</span>
 </header>
 
 <main>
   <div id="map"></div>
   <aside>
     <div class="panel-section">
-      <div class="panel-label">Score Legend</div>
+      <div class="panel-label">Need Score Legend</div>
       <div class="legend-bar"></div>
       <div class="legend-labels">
-        <span>0.0 Low</span>
-        <span>0.5</span>
-        <span>1.0 High</span>
+        <span>Low Need</span>
+        <span>High Need</span>
       </div>
     </div>
 
@@ -340,7 +264,7 @@
       <div class="panel-label">Statistics</div>
       <div class="empty-state">
         <div class="empty-icon">📊</div>
-        <div class="empty-text">Upload a CSV with NTA scores to see statistics</div>
+        <div class="empty-text">Loading...</div>
       </div>
     </div>
 
@@ -348,21 +272,14 @@
       <div class="panel-label">Top 10 Highest Need</div>
       <div class="empty-state">
         <div class="empty-icon">📍</div>
-        <div class="empty-text">Upload scores to see ranked neighborhoods</div>
+        <div class="empty-text">Loading...</div>
       </div>
     </div>
 
     <div id="tooltip-panel">
       <div class="panel-label">Selected NTA</div>
       <div id="hover-content">
-        <div class="tooltip-empty">Hover over a neighborhood to see details. Upload a CSV to add scores.</div>
-        <div class="csv-hint">
-          CSV format:<br/>
-          NTACode,Score<br/>
-          BK0101,0.82<br/>
-          BX0601,0.91<br/>
-          MN2501,0.34
-        </div>
+        <div class="tooltip-empty">Hover over a neighborhood to see details.</div>
       </div>
     </div>
   </aside>
@@ -371,7 +288,6 @@
 <script>
   const NTA_GEOJSON_URL = './nynta2020.geojson';
 
-  // Hardcoded bus need index scores per NTA
   const HARD_SCORES = {
     'BK0101': 0.658507,
     'BK0102': 0.628339,
@@ -613,8 +529,7 @@
   };
 
   let map, geojsonLayer, ntaData = null;
-  let scores = {};
-  let showBorders = true;
+  const scores = HARD_SCORES;
 
   function lerpColor(a, b, t) {
     const ah = parseInt(a.slice(1), 16);
@@ -628,8 +543,8 @@
   }
 
   function getColor(score) {
-    if (score === null || score === undefined) return '#1e2d45';
-    const stops = ['#1e3a5f', '#2563eb', '#f59e0b', '#ef4444'];
+    if (score === null || score === undefined) return '#1e2033';
+    const stops = ['#fca5a5', '#ef4444', '#7f1d1d'];
     const t = Math.max(0, Math.min(1, score)) * (stops.length - 1);
     const i = Math.floor(t);
     const f = t - i;
@@ -638,8 +553,8 @@
   }
 
   function getOpacity(score) {
-    if (score === null || score === undefined) return 0.55;
-    return 0.6 + score * 0.35;
+    if (score === null || score === undefined) return 0.25;
+    return 0.55 + score * 0.4;
   }
 
   function styleFeature(feature) {
@@ -648,9 +563,9 @@
     return {
       fillColor: getColor(score),
       fillOpacity: getOpacity(score),
-      color: showBorders ? '#7dd3fc' : 'transparent',
-      weight: showBorders ? 1.2 : 0,
-      opacity: showBorders ? 0.85 : 0
+      color: '#ffffff',
+      weight: 0.5,
+      opacity: 0.25
     };
   }
 
@@ -658,13 +573,12 @@
     layer.on({
       mouseover: function(e) {
         const lyr = e.target;
-        lyr.setStyle({ weight: 1.5, color: '#60a5fa', opacity: 1, fillOpacity: 0.85 });
+        lyr.setStyle({ weight: 1.5, color: '#ffffff', opacity: 0.7, fillOpacity: 0.95 });
         lyr.bringToFront();
         const props = feature.properties;
         const code = props.NTA2020 || props.NTACode || props.ntacode;
         const name = props.NTAName || props.ntaname || 'Unknown';
-        const score = scores[code];
-        updateHoverPanel(name, code, score);
+        updateHoverPanel(name, code, scores[code]);
       },
       mouseout: function(e) {
         geojsonLayer.resetStyle(e.target);
@@ -690,55 +604,18 @@
       content.innerHTML = `
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
-        <div class="tooltip-empty" style="margin-top:12px">No score loaded for this NTA yet.</div>
+        <div class="tooltip-empty" style="margin-top:12px">No score for this NTA.</div>
       `;
     }
   }
 
   function resetHoverPanel() {
-    document.getElementById('hover-content').innerHTML = `
-      <div class="tooltip-empty">Hover over a neighborhood to see details.</div>
-    `;
-  }
-
-  function toggleBorders() {
-    showBorders = !showBorders;
-    const btn = document.getElementById('border-btn');
-    btn.textContent = showBorders ? 'Borders ON' : 'Borders OFF';
-    btn.classList.toggle('active', showBorders);
-    if (geojsonLayer) geojsonLayer.setStyle(styleFeature);
-  }
-
-  function handleCSV(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-        scores = {};
-        results.data.forEach(row => {
-          const code = (row.NTACode || row.ntacode || '').trim();
-          const val = parseFloat(row.Score || row.score);
-          if (code && !isNaN(val)) scores[code] = Math.max(0, Math.min(1, val));
-        });
-        const count = Object.keys(scores).length;
-        document.getElementById('data-status').textContent = `${count} NTAs scored`;
-        document.getElementById('data-status').className = 'status-badge loaded';
-        if (geojsonLayer) geojsonLayer.setStyle(styleFeature);
-        updateStats();
-        updateTopList();
-        event.target.value = '';
-      },
-      error: function() {
-        alert('Error parsing CSV. Make sure it has NTACode and Score columns.');
-      }
-    });
+    document.getElementById('hover-content').innerHTML =
+      '<div class="tooltip-empty">Hover over a neighborhood to see details.</div>';
   }
 
   function updateStats() {
     const vals = Object.values(scores);
-    if (!vals.length) return;
     const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
     const max = Math.max(...vals);
     const min = Math.min(...vals);
@@ -749,23 +626,18 @@
       <div class="stat-row"><span class="stat-label">Mean score</span><span class="stat-val">${avg.toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Max score</span><span class="stat-val">${max.toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Min score</span><span class="stat-val">${min.toFixed(3)}</span></div>
-      <div class="stat-row"><span class="stat-label">High need (≥0.75)</span><span class="stat-val" style="color:var(--veryhigh)">${high}</span></div>
+      <div class="stat-row"><span class="stat-label">High need (≥0.75)</span><span class="stat-val" style="color:#ef4444">${high}</span></div>
     `;
   }
 
   function updateTopList() {
     if (!ntaData) return;
-    const sorted = Object.entries(scores)
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, 10);
-
+    const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0, 10);
     const nameMap = {};
     ntaData.features.forEach(f => {
       const code = f.properties.NTA2020 || f.properties.NTACode || f.properties.ntacode;
-      const name = f.properties.NTAName || f.properties.ntaname || code;
-      nameMap[code] = name;
+      nameMap[code] = f.properties.NTAName || f.properties.ntaname || code;
     });
-
     const items = sorted.map(([code, score], i) => `
       <li>
         <span class="rank">${i+1}</span>
@@ -773,7 +645,6 @@
         <span class="nta-score">${score.toFixed(2)}</span>
       </li>
     `).join('');
-
     document.getElementById('top-panel').innerHTML = `
       <div class="panel-label">Top 10 Highest Need</div>
       <ul class="top-list">${items}</ul>
@@ -789,14 +660,13 @@
     });
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
 
     try {
       const res = await fetch(NTA_GEOJSON_URL);
-      if (!res.ok) throw new Error('Failed to fetch NTA data');
+      if (!res.ok) throw new Error('Failed to fetch');
       ntaData = await res.json();
 
       geojsonLayer = L.geoJSON(ntaData, {
@@ -807,15 +677,11 @@
       map.fitBounds(geojsonLayer.getBounds());
       document.getElementById('loading').style.display = 'none';
 
-      if (Object.keys(HARD_SCORES).length > 0) {
-        scores = HARD_SCORES;
-        const count = Object.keys(scores).length;
-        document.getElementById('data-status').textContent = `${count} NTAs scored`;
-        document.getElementById('data-status').className = 'status-badge loaded';
-        geojsonLayer.setStyle(styleFeature);
-        updateStats();
-        updateTopList();
-      }
+      const count = Object.keys(scores).length;
+      document.getElementById('data-status').textContent = `${count} NTAs scored`;
+      document.getElementById('data-status').className = 'status-badge loaded';
+      updateStats();
+      updateTopList();
 
     } catch (err) {
       document.getElementById('loading').innerHTML = `
@@ -823,10 +689,7 @@
           <div style="font-size:24px;margin-bottom:12px">⚠️</div>
           <div class="loading-text" style="color:#ef4444;margin-bottom:8px">Could not load NTA boundaries</div>
           <div class="loading-text" style="font-size:10px;line-height:1.8">
-            NYC OpenData may be blocking the request.<br/>
-            Download the NTA GeoJSON from<br/>
-            data.cityofnewyork.us and host it locally,<br/>
-            then update the NTA_GEOJSON_URL variable.
+            Make sure nynta2020.geojson is in the same folder as this file.
           </div>
         </div>
       `;
