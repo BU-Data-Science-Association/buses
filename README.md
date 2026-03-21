@@ -7,5 +7,5 @@ BUDSA's free bus analysis project
 - Hassan Dawy  
 - Gina Lim  
 
-run nyc_nta_map.html with the command: python -m http.server 8000
+run index.html with the command: python -m http.server 8000
 open http://localhost:8000/nyc_nta_map.html in web browser
