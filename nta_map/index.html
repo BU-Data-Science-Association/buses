@@ -542,12 +542,16 @@
     return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb).toString(16).slice(1);
   }
 
+  const MIN_SCORE = 0.037;
+  const MAX_SCORE = 0.823;
+
   function getColor(score) {
     if (score === null || score === undefined) return '#1e2033';
     const stops = ['#fca5a5', '#ef4444', '#7f1d1d'];
-    const t = Math.max(0, Math.min(1, score)) * (stops.length - 1);
-    const i = Math.floor(t);
-    const f = t - i;
+    const t = (score - MIN_SCORE) / (MAX_SCORE - MIN_SCORE);
+    const clamped = Math.max(0, Math.min(1, t)) * (stops.length - 1);
+    const i = Math.floor(clamped);
+    const f = clamped - i;
     if (i >= stops.length - 1) return stops[stops.length - 1];
     return lerpColor(stops[i], stops[i + 1], f);
   }
