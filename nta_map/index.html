@@ -6,7 +6,6 @@
   <title>NYC NTA Bus Need Map</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
@@ -17,13 +16,8 @@
       --panel: #13161e;
       --border: #1f2535;
       --accent: #3b82f6;
-      --accent2: #06b6d4;
       --text: #e2e8f0;
       --muted: #64748b;
-      --low: #1e3a5f;
-      --mid: #2563eb;
-      --high: #f97316;
-      --veryhigh: #ef4444;
     }
 
     body {
@@ -61,41 +55,6 @@
       font-family: 'IBM Plex Mono', monospace;
     }
 
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .btn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 14px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    .upload-btn {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      position: relative;
-      overflow: hidden;
-    }
-    .upload-btn:hover { background: #2563eb; }
-    .upload-btn input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer;
-    }
-
     .status-badge {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
@@ -104,18 +63,14 @@
       border: 1px solid var(--border);
       color: var(--muted);
     }
-    .status-badge.loaded { border-color: #22c55e55; color: #22c55e; background: #22c55e11; }
-
-    main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
+    .status-badge.loaded {
+      border-color: #22c55e55;
+      color: #22c55e;
+      background: #22c55e11;
     }
 
-    #map {
-      flex: 1;
-      background: #0a0c10;
-    }
+    main { display: flex; flex: 1; overflow: hidden; }
+    #map { flex: 1; background: #0a0c10; }
 
     aside {
       width: 240px;
@@ -145,7 +100,7 @@
     .legend-bar {
       height: 10px;
       border-radius: 3px;
-      background: linear-gradient(to right, #1e3a5f, #2563eb, #f59e0b, #ef4444);
+      background: linear-gradient(to right, #e8a8a8, #ef4444, #7a0202);
       margin-bottom: 6px;
     }
     .legend-labels {
@@ -170,10 +125,8 @@
       color: var(--text);
     }
 
-    #tooltip-panel {
-      padding: 16px;
-      flex: 1;
-    }
+    #tooltip-panel { padding: 16px; flex: 1; }
+
     .tooltip-name {
       font-size: 13px;
       font-weight: 600;
@@ -198,7 +151,7 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 28px;
       font-weight: 600;
-      color: var(--accent);
+      color: #ef4444;
     }
     .tooltip-bar-wrap {
       margin-top: 10px;
@@ -209,15 +162,11 @@
     }
     .tooltip-bar-fill {
       height: 100%;
-      background: linear-gradient(to right, var(--accent), var(--high));
+      background: linear-gradient(to right, #fca5a5, #7f1d1d);
       border-radius: 2px;
       transition: width 0.3s;
     }
-    .tooltip-empty {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .tooltip-empty { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
     .top-list { list-style: none; }
     .top-list li {
@@ -234,14 +183,10 @@
       color: var(--muted);
       width: 16px;
     }
-    .top-list .nta-name {
-      flex: 1;
-      padding: 0 6px;
-      color: var(--text);
-    }
+    .top-list .nta-name { flex: 1; padding: 0 6px; color: var(--text); }
     .top-list .nta-score {
       font-family: 'IBM Plex Mono', monospace;
-      color: var(--high);
+      color: #ef4444;
       font-weight: 600;
     }
 
@@ -259,7 +204,6 @@
     .empty-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
     .leaflet-container { background: #0a0c10 !important; }
-
     .leaflet-tile-pane { filter: brightness(0.6) saturate(0.4) hue-rotate(200deg); }
 
     .loading-overlay {
@@ -287,18 +231,6 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .csv-hint {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 8px 10px;
-      margin-top: 10px;
-      line-height: 1.8;
-    }
   </style>
 </head>
 <body>
@@ -313,26 +245,18 @@
     <h1>NYC NTA Bus Need Map</h1>
     <p>Neighborhood Tabulation Areas · 2020 Boundaries</p>
   </div>
-  <div class="controls">
-    <span class="status-badge" id="data-status">No scores loaded</span>
-    <button class="btn" id="border-btn" onclick="toggleBorders()">Borders ON</button>
-    <label class="btn upload-btn">
-      Upload Scores (CSV)
-      <input type="file" accept=".csv" onchange="handleCSV(event)"/>
-    </label>
-  </div>
+  <span class="status-badge" id="data-status">Loading...</span>
 </header>
 
 <main>
   <div id="map"></div>
   <aside>
     <div class="panel-section">
-      <div class="panel-label">Score Legend</div>
+      <div class="panel-label">Need Score Legend</div>
       <div class="legend-bar"></div>
       <div class="legend-labels">
-        <span>0.0 Low</span>
-        <span>0.5</span>
-        <span>1.0 High</span>
+        <span>Low Need</span>
+        <span>High Need</span>
       </div>
     </div>
 
@@ -340,7 +264,7 @@
       <div class="panel-label">Statistics</div>
       <div class="empty-state">
         <div class="empty-icon">📊</div>
-        <div class="empty-text">Upload a CSV with NTA scores to see statistics</div>
+        <div class="empty-text">Loading...</div>
       </div>
     </div>
 
@@ -348,21 +272,14 @@
       <div class="panel-label">Top 10 Highest Need</div>
       <div class="empty-state">
         <div class="empty-icon">📍</div>
-        <div class="empty-text">Upload scores to see ranked neighborhoods</div>
+        <div class="empty-text">Loading...</div>
       </div>
     </div>
 
     <div id="tooltip-panel">
       <div class="panel-label">Selected NTA</div>
       <div id="hover-content">
-        <div class="tooltip-empty">Hover over a neighborhood to see details. Upload a CSV to add scores.</div>
-        <div class="csv-hint">
-          CSV format:<br/>
-          NTACode,Score<br/>
-          BK0101,0.82<br/>
-          BX0601,0.91<br/>
-          MN2501,0.34
-        </div>
+        <div class="tooltip-empty">Hover over a neighborhood to see details.</div>
       </div>
     </div>
   </aside>
@@ -371,250 +288,248 @@
 <script>
   const NTA_GEOJSON_URL = './nynta2020.geojson';
 
-  // Hardcoded bus need index scores per NTA
   const HARD_SCORES = {
-    'BK0101': 0.658507,
-    'BK0102': 0.628339,
-    'BK0103': 0.767058,
-    'BK0104': 0.70703,
-    'BK0201': 0.536932,
-    'BK0202': 0.586588,
-    'BK0203': 0.622804,
-    'BK0204': 0.623093,
-    'BK0301': 0.689429,
-    'BK0302': 0.717695,
-    'BK0401': 0.701208,
-    'BK0402': 0.698796,
-    'BK0501': 0.653685,
-    'BK0502': 0.660366,
-    'BK0503': 0.715758,
-    'BK0504': 0.470436,
-    'BK0505': 0.722145,
-    'BK0571': 0.247766,
-    'BK0601': 0.581725,
-    'BK0602': 0.515035,
-    'BK0701': 0.600399,
-    'BK0702': 0.708151,
-    'BK0703': 0.745926,
-    'BK0771': 0.269442,
-    'BK0801': 0.552803,
-    'BK0802': 0.708183,
-    'BK0891': 0.259522,
-    'BK0901': 0.683197,
-    'BK0902': 0.697,
-    'BK1001': 0.661604,
-    'BK1002': 0.676224,
-    'BK1061': 0.58582,
-    'BK1091': 0.294141,
-    'BK1101': 0.708244,
-    'BK1102': 0.642963,
-    'BK1103': 0.683878,
-    'BK1201': 0.75211,
-    'BK1202': 0.722732,
-    'BK1203': 0.682225,
-    'BK1204': 0.680878,
-    'BK1301': 0.693426,
-    'BK1302': 0.717523,
-    'BK1303': 0.735357,
-    'BK1401': 0.713013,
-    'BK1402': 0.655147,
-    'BK1403': 0.675309,
-    'BK1501': 0.679192,
-    'BK1502': 0.667201,
-    'BK1503': 0.654509,
-    'BK1601': 0.701416,
-    'BK1602': 0.759408,
-    'BK1701': 0.70362,
-    'BK1702': 0.685277,
-    'BK1703': 0.680291,
-    'BK1704': 0.718417,
-    'BK1801': 0.639601,
-    'BK1802': 0.560104,
-    'BK1803': 0.352466,
-    'BK1893': 0.267213,
-    'BK5591': 0.284339,
-    'BK5691': 0.060968,
-    'BK5693': 0.252555,
-    'BX0101': 0.80023,
-    'BX0102': 0.819679,
-    'BX0201': 0.80562,
-    'BX0202': 0.768528,
-    'BX0301': 0.794701,
-    'BX0302': 0.77618,
-    'BX0303': 0.75528,
-    'BX0391': 0.279388,
-    'BX0401': 0.757451,
-    'BX0402': 0.759821,
-    'BX0403': 0.75566,
-    'BX0491': 0.239976,
-    'BX0492': 0.258764,
-    'BX0501': 0.807415,
-    'BX0502': 0.781439,
-    'BX0503': 0.775978,
-    'BX0601': 0.783317,
-    'BX0602': 0.791336,
-    'BX0603': 0.808604,
-    'BX0701': 0.777684,
-    'BX0702': 0.783314,
-    'BX0703': 0.741544,
-    'BX0801': 0.747921,
-    'BX0802': 0.716763,
-    'BX0803': 0.644457,
-    'BX0901': 0.769939,
-    'BX0902': 0.706919,
-    'BX0903': 0.698393,
-    'BX0904': 0.746829,
-    'BX1001': 0.713699,
-    'BX1002': 0.578931,
-    'BX1003': 0.329635,
-    'BX1004': 0.685627,
-    'BX1091': 0.25,
-    'BX1101': 0.701576,
-    'BX1102': 0.653802,
-    'BX1103': 0.62,
-    'BX1104': 0.743367,
-    'BX1161': 0.29539,
-    'BX1201': 0.694481,
-    'BX1202': 0.652533,
-    'BX1203': 0.65419,
-    'BX1271': 0.323583,
-    'BX2691': 0.295595,
-    'BX2791': 0.277203,
-    'MN0101': 0.267499,
-    'MN0102': 0.493342,
-    'MN0201': 0.59475,
-    'MN0202': 0.528882,
-    'MN0203': 0.541315,
-    'MN0301': 0.822962,
-    'MN0302': 0.452292,
-    'MN0303': 0.434294,
-    'MN0401': 0.655756,
-    'MN0402': 0.698514,
-    'MN0501': 0.509175,
-    'MN0502': 0.589805,
-    'MN0601': 0.283536,
-    'MN0602': 0.630453,
-    'MN0603': 0.35841,
-    'MN0604': 0.587261,
-    'MN0701': 0.546432,
-    'MN0702': 0.598369,
-    'MN0703': 0.651786,
-    'MN0801': 0.371133,
-    'MN0802': 0.510575,
-    'MN0803': 0.346768,
-    'MN0901': 0.739936,
-    'MN0902': 0.79077,
-    'MN0903': 0.769838,
-    'MN1001': 0.729766,
-    'MN1002': 0.780483,
-    'MN1101': 0.814869,
-    'MN1102': 0.512735,
-    'MN1191': 0.557108,
-    'MN1201': 0.747787,
-    'MN1202': 0.742745,
-    'MN1203': 0.454744,
-    'MN1291': 0.275378,
-    'MN1292': 0.312262,
-    'MN6491': 0.275346,
-    'QN0101': 0.521895,
-    'QN0102': 0.627945,
-    'QN0103': 0.419308,
-    'QN0104': 0.542875,
-    'QN0105': 0.69016,
-    'QN0161': 0.036791,
-    'QN0201': 0.563487,
-    'QN0202': 0.727699,
-    'QN0203': 0.820195,
-    'QN0271': 0.287744,
-    'QN0301': 0.666617,
-    'QN0302': 0.821946,
-    'QN0303': 0.716421,
-    'QN0401': 0.728355,
-    'QN0402': 0.757205,
-    'QN0501': 0.653115,
-    'QN0502': 0.691506,
-    'QN0503': 0.639575,
-    'QN0504': 0.615017,
-    'QN0571': 0.23389,
-    'QN0572': 0.25,
-    'QN0573': 0.302133,
-    'QN0574': 0.444089,
-    'QN0601': 0.694125,
-    'QN0602': 0.626823,
-    'QN0701': 0.306284,
-    'QN0702': 0.538736,
-    'QN0703': 0.552146,
-    'QN0704': 0.688072,
-    'QN0705': 0.671441,
-    'QN0706': 0.694865,
-    'QN0707': 0.79855,
-    'QN0761': 0.33071,
-    'QN0801': 0.61843,
-    'QN0802': 0.618318,
-    'QN0803': 0.591191,
-    'QN0804': 0.599749,
-    'QN0805': 0.630638,
-    'QN0871': 0.266129,
-    'QN0891': 0.285023,
-    'QN0901': 0.676593,
-    'QN0902': 0.612655,
-    'QN0903': 0.593698,
-    'QN0904': 0.592614,
-    'QN0905': 0.618857,
-    'QN1001': 0.598972,
-    'QN1002': 0.52831,
-    'QN1003': 0.259151,
-    'QN1101': 0.586042,
-    'QN1102': 0.563595,
-    'QN1103': 0.238873,
-    'QN1104': 0.564481,
-    'QN1191': 0.419881,
-    'QN1201': 0.694434,
-    'QN1202': 0.623963,
-    'QN1203': 0.578535,
-    'QN1204': 0.60992,
-    'QN1205': 0.554548,
-    'QN1206': 0.60903,
-    'QN1301': 0.509544,
-    'QN1302': 0.547058,
-    'QN1303': 0.582072,
-    'QN1304': 0.51329,
-    'QN1305': 0.522989,
-    'QN1306': 0.516316,
-    'QN1307': 0.518805,
-    'QN1371': 0.266266,
-    'QN1401': 0.353313,
-    'QN1402': 0.381184,
-    'QN1403': 0.209133,
-    'QN8191': 0.3458,
-    'QN8291': 0.325026,
-    'SI0101': 0.671093,
-    'SI0102': 0.690632,
-    'SI0103': 0.599693,
-    'SI0104': 0.569647,
-    'SI0105': 0.493259,
-    'SI0106': 0.578785,
-    'SI0107': 0.310412,
-    'SI0191': 0.285549,
-    'SI0201': 0.596909,
-    'SI0202': 0.555978,
-    'SI0203': 0.529814,
-    'SI0204': 0.529652,
-    'SI0291': 0.291026,
-    'SI0301': 0.504825,
-    'SI0302': 0.479452,
-    'SI0303': 0.492759,
-    'SI0304': 0.50286,
-    'SI0305': 0.457882,
-    'SI0391': 0.305996,
-    'SI9561': 0.518405,
-    'SI9592': 0.38455,
-    'SI9593': 0.267438,
+    'BK0101': 0.571779,
+    'BK0102': 0.585064,
+    'BK0103': 0.705867,
+    'BK0104': 0.655383,
+    'BK0201': 0.508593,
+    'BK0202': 0.565864,
+    'BK0203': 0.603476,
+    'BK0204': 0.585624,
+    'BK0301': 0.662142,
+    'BK0302': 0.681021,
+    'BK0401': 0.673147,
+    'BK0402': 0.647833,
+    'BK0501': 0.580286,
+    'BK0502': 0.587667,
+    'BK0503': 0.689432,
+    'BK0504': 0.376349,
+    'BK0505': 0.632961,
+    'BK0571': 0.262718,
+    'BK0601': 0.496432,
+    'BK0602': 0.50936,
+    'BK0701': 0.576044,
+    'BK0702': 0.612516,
+    'BK0703': 0.655885,
+    'BK0771': 0.296229,
+    'BK0801': 0.527612,
+    'BK0802': 0.65843,
+    'BK0891': 0.273141,
+    'BK0901': 0.650386,
+    'BK0902': 0.681789,
+    'BK1001': 0.569829,
+    'BK1002': 0.564792,
+    'BK1061': 0.499316,
+    'BK1091': 0.33523,
+    'BK1101': 0.766595,
+    'BK1102': 0.663262,
+    'BK1103': 0.681714,
+    'BK1201': 0.737317,
+    'BK1202': 0.73662,
+    'BK1203': 0.674422,
+    'BK1204': 0.74285,
+    'BK1301': 0.690496,
+    'BK1302': 0.673216,
+    'BK1303': 0.737967,
+    'BK1401': 0.748142,
+    'BK1402': 0.676965,
+    'BK1403': 0.698358,
+    'BK1501': 0.68368,
+    'BK1502': 0.642417,
+    'BK1503': 0.657099,
+    'BK1601': 0.633487,
+    'BK1602': 0.720513,
+    'BK1701': 0.739264,
+    'BK1702': 0.726576,
+    'BK1703': 0.678082,
+    'BK1704': 0.70094,
+    'BK1801': 0.677717,
+    'BK1802': 0.583613,
+    'BK1803': 0.281973,
+    'BK1893': 0.300277,
+    'BK5591': 0.384152,
+    'BK5691': 0.048774,
+    'BK5693': 0.247885,
+    'BX0101': 0.721205,
+    'BX0102': 0.727719,
+    'BX0201': 0.728295,
+    'BX0202': 0.682124,
+    'BX0301': 0.71669,
+    'BX0302': 0.702527,
+    'BX0303': 0.683994,
+    'BX0391': 0.299495,
+    'BX0401': 0.694263,
+    'BX0402': 0.67427,
+    'BX0403': 0.674701,
+    'BX0491': 0.286949,
+    'BX0492': 0.309725,
+    'BX0501': 0.714633,
+    'BX0502': 0.715315,
+    'BX0503': 0.72774,
+    'BX0601': 0.783565,
+    'BX0602': 0.754893,
+    'BX0603': 0.750704,
+    'BX0701': 0.728217,
+    'BX0702': 0.702057,
+    'BX0703': 0.665366,
+    'BX0801': 0.708678,
+    'BX0802': 0.686667,
+    'BX0803': 0.628531,
+    'BX0901': 0.713999,
+    'BX0902': 0.664222,
+    'BX0903': 0.729126,
+    'BX0904': 0.707067,
+    'BX1001': 0.646884,
+    'BX1002': 0.509825,
+    'BX1003': 0.263708,
+    'BX1004': 0.625135,
+    'BX1091': 0.265375,
+    'BX1101': 0.676686,
+    'BX1102': 0.614254,
+    'BX1103': 0.534966,
+    'BX1104': 0.636603,
+    'BX1161': 0.332834,
+    'BX1201': 0.612853,
+    'BX1202': 0.594499,
+    'BX1203': 0.581222,
+    'BX1271': 0.302525,
+    'BX2691': 0.31775,
+    'BX2791': 0.350541,
+    'MN0101': 0.213999,
+    'MN0102': 0.425847,
+    'MN0201': 0.505105,
+    'MN0202': 0.478282,
+    'MN0203': 0.495332,
+    'MN0301': 0.743684,
+    'MN0302': 0.361834,
+    'MN0303': 0.347436,
+    'MN0401': 0.599304,
+    'MN0402': 0.621518,
+    'MN0501': 0.456845,
+    'MN0502': 0.517546,
+    'MN0601': 0.226829,
+    'MN0602': 0.609373,
+    'MN0603': 0.286728,
+    'MN0604': 0.56303,
+    'MN0701': 0.534069,
+    'MN0702': 0.617255,
+    'MN0703': 0.655641,
+    'MN0801': 0.296906,
+    'MN0802': 0.56238,
+    'MN0803': 0.277415,
+    'MN0901': 0.742782,
+    'MN0902': 0.790602,
+    'MN0903': 0.771658,
+    'MN1001': 0.737275,
+    'MN1002': 0.752119,
+    'MN1101': 0.839457,
+    'MN1102': 0.410188,
+    'MN1191': 0.510097,
+    'MN1201': 0.725292,
+    'MN1202': 0.734144,
+    'MN1203': 0.363795,
+    'MN1291': 0.395951,
+    'MN1292': 0.331343,
+    'MN6491': 0.305434,
+    'QN0101': 0.557427,
+    'QN0102': 0.587346,
+    'QN0103': 0.335446,
+    'QN0104': 0.574211,
+    'QN0105': 0.637119,
+    'QN0161': 0.029433,
+    'QN0201': 0.497311,
+    'QN0202': 0.623315,
+    'QN0203': 0.726515,
+    'QN0271': 0.271351,
+    'QN0301': 0.673205,
+    'QN0302': 0.69988,
+    'QN0303': 0.57461,
+    'QN0401': 0.663565,
+    'QN0402': 0.752871,
+    'QN0501': 0.63203,
+    'QN0502': 0.659889,
+    'QN0503': 0.603803,
+    'QN0504': 0.56665,
+    'QN0571': 0.2846,
+    'QN0572': 0.348947,
+    'QN0573': 0.3558,
+    'QN0574': 0.436355,
+    'QN0601': 0.658454,
+    'QN0602': 0.570202,
+    'QN0701': 0.245028,
+    'QN0702': 0.524719,
+    'QN0703': 0.512358,
+    'QN0704': 0.633397,
+    'QN0705': 0.734338,
+    'QN0706': 0.740502,
+    'QN0707': 0.769439,
+    'QN0761': 0.33793,
+    'QN0801': 0.622385,
+    'QN0802': 0.605625,
+    'QN0803': 0.578752,
+    'QN0804': 0.556834,
+    'QN0805': 0.611577,
+    'QN0871': 0.359017,
+    'QN0891': 0.363746,
+    'QN0901': 0.599233,
+    'QN0902': 0.582828,
+    'QN0903': 0.537498,
+    'QN0904': 0.536631,
+    'QN0905': 0.557898,
+    'QN1001': 0.609947,
+    'QN1002': 0.553418,
+    'QN1003': 0.207321,
+    'QN1101': 0.59465,
+    'QN1102': 0.575197,
+    'QN1103': 0.191099,
+    'QN1104': 0.606124,
+    'QN1191': 0.525723,
+    'QN1201': 0.624221,
+    'QN1202': 0.536751,
+    'QN1203': 0.49614,
+    'QN1204': 0.528525,
+    'QN1205': 0.487121,
+    'QN1206': 0.551699,
+    'QN1301': 0.514236,
+    'QN1302': 0.567822,
+    'QN1303': 0.562791,
+    'QN1304': 0.51212,
+    'QN1305': 0.453899,
+    'QN1306': 0.457164,
+    'QN1307': 0.4467,
+    'QN1371': 0.263896,
+    'QN1401': 0.28265,
+    'QN1402': 0.304947,
+    'QN1403': 0.167306,
+    'QN8191': 0.411678,
+    'QN8291': 0.356263,
+    'SI0101': 0.546021,
+    'SI0102': 0.56132,
+    'SI0103': 0.50072,
+    'SI0104': 0.470006,
+    'SI0105': 0.403862,
+    'SI0106': 0.472968,
+    'SI0107': 0.24833,
+    'SI0191': 0.259124,
+    'SI0201': 0.501536,
+    'SI0202': 0.463177,
+    'SI0203': 0.430724,
+    'SI0204': 0.435353,
+    'SI0291': 0.247777,
+    'SI0301': 0.423068,
+    'SI0302': 0.396107,
+    'SI0303': 0.394772,
+    'SI0304': 0.408592,
+    'SI0305': 0.370769,
+    'SI0391': 0.244796,
+    'SI9561': 0.415662,
+    'SI9592': 0.340007,
+    'SI9593': 0.245392,
   };
 
   let map, geojsonLayer, ntaData = null;
-  let scores = {};
-  let showBorders = true;
+  const scores = HARD_SCORES;
 
   function lerpColor(a, b, t) {
     const ah = parseInt(a.slice(1), 16);
@@ -627,19 +542,23 @@
     return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb).toString(16).slice(1);
   }
 
+  const MIN_SCORE = 0.037;
+  const MAX_SCORE = 0.823;
+
   function getColor(score) {
-    if (score === null || score === undefined) return '#1e2d45';
-    const stops = ['#1e3a5f', '#2563eb', '#f59e0b', '#ef4444'];
-    const t = Math.max(0, Math.min(1, score)) * (stops.length - 1);
-    const i = Math.floor(t);
-    const f = t - i;
+    if (score === null || score === undefined) return '#1e2033';
+    const stops = ['#e8a8a8', '#ef4444', '#7a0202'];
+    const t = (score - MIN_SCORE) / (MAX_SCORE - MIN_SCORE);
+    const clamped = Math.max(0, Math.min(1, t)) * (stops.length - 1);
+    const i = Math.floor(clamped);
+    const f = clamped - i;
     if (i >= stops.length - 1) return stops[stops.length - 1];
     return lerpColor(stops[i], stops[i + 1], f);
   }
 
   function getOpacity(score) {
-    if (score === null || score === undefined) return 0.55;
-    return 0.6 + score * 0.35;
+    if (score === null || score === undefined) return 0.25;
+    return 0.55 + score * 0.4;
   }
 
   function styleFeature(feature) {
@@ -648,9 +567,9 @@
     return {
       fillColor: getColor(score),
       fillOpacity: getOpacity(score),
-      color: showBorders ? '#7dd3fc' : 'transparent',
-      weight: showBorders ? 1.2 : 0,
-      opacity: showBorders ? 0.85 : 0
+      color: '#ffffff',
+      weight: 0.5,
+      opacity: 0.25
     };
   }
 
@@ -658,13 +577,12 @@
     layer.on({
       mouseover: function(e) {
         const lyr = e.target;
-        lyr.setStyle({ weight: 1.5, color: '#60a5fa', opacity: 1, fillOpacity: 0.85 });
+        lyr.setStyle({ weight: 1.5, color: '#ffffff', opacity: 0.7, fillOpacity: 0.95 });
         lyr.bringToFront();
         const props = feature.properties;
         const code = props.NTA2020 || props.NTACode || props.ntacode;
         const name = props.NTAName || props.ntaname || 'Unknown';
-        const score = scores[code];
-        updateHoverPanel(name, code, score);
+        updateHoverPanel(name, code, scores[code]);
       },
       mouseout: function(e) {
         geojsonLayer.resetStyle(e.target);
@@ -690,55 +608,18 @@
       content.innerHTML = `
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
-        <div class="tooltip-empty" style="margin-top:12px">No score loaded for this NTA yet.</div>
+        <div class="tooltip-empty" style="margin-top:12px">No score for this NTA.</div>
       `;
     }
   }
 
   function resetHoverPanel() {
-    document.getElementById('hover-content').innerHTML = `
-      <div class="tooltip-empty">Hover over a neighborhood to see details.</div>
-    `;
-  }
-
-  function toggleBorders() {
-    showBorders = !showBorders;
-    const btn = document.getElementById('border-btn');
-    btn.textContent = showBorders ? 'Borders ON' : 'Borders OFF';
-    btn.classList.toggle('active', showBorders);
-    if (geojsonLayer) geojsonLayer.setStyle(styleFeature);
-  }
-
-  function handleCSV(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-        scores = {};
-        results.data.forEach(row => {
-          const code = (row.NTACode || row.ntacode || '').trim();
-          const val = parseFloat(row.Score || row.score);
-          if (code && !isNaN(val)) scores[code] = Math.max(0, Math.min(1, val));
-        });
-        const count = Object.keys(scores).length;
-        document.getElementById('data-status').textContent = `${count} NTAs scored`;
-        document.getElementById('data-status').className = 'status-badge loaded';
-        if (geojsonLayer) geojsonLayer.setStyle(styleFeature);
-        updateStats();
-        updateTopList();
-        event.target.value = '';
-      },
-      error: function() {
-        alert('Error parsing CSV. Make sure it has NTACode and Score columns.');
-      }
-    });
+    document.getElementById('hover-content').innerHTML =
+      '<div class="tooltip-empty">Hover over a neighborhood to see details.</div>';
   }
 
   function updateStats() {
     const vals = Object.values(scores);
-    if (!vals.length) return;
     const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
     const max = Math.max(...vals);
     const min = Math.min(...vals);
@@ -749,23 +630,18 @@
       <div class="stat-row"><span class="stat-label">Mean score</span><span class="stat-val">${avg.toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Max score</span><span class="stat-val">${max.toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Min score</span><span class="stat-val">${min.toFixed(3)}</span></div>
-      <div class="stat-row"><span class="stat-label">High need (≥0.75)</span><span class="stat-val" style="color:var(--veryhigh)">${high}</span></div>
+      <div class="stat-row"><span class="stat-label">High need (≥0.75)</span><span class="stat-val" style="color:#ef4444">${high}</span></div>
     `;
   }
 
   function updateTopList() {
     if (!ntaData) return;
-    const sorted = Object.entries(scores)
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, 10);
-
+    const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0, 10);
     const nameMap = {};
     ntaData.features.forEach(f => {
       const code = f.properties.NTA2020 || f.properties.NTACode || f.properties.ntacode;
-      const name = f.properties.NTAName || f.properties.ntaname || code;
-      nameMap[code] = name;
+      nameMap[code] = f.properties.NTAName || f.properties.ntaname || code;
     });
-
     const items = sorted.map(([code, score], i) => `
       <li>
         <span class="rank">${i+1}</span>
@@ -773,7 +649,6 @@
         <span class="nta-score">${score.toFixed(2)}</span>
       </li>
     `).join('');
-
     document.getElementById('top-panel').innerHTML = `
       <div class="panel-label">Top 10 Highest Need</div>
       <ul class="top-list">${items}</ul>
@@ -789,14 +664,13 @@
     });
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
 
     try {
       const res = await fetch(NTA_GEOJSON_URL);
-      if (!res.ok) throw new Error('Failed to fetch NTA data');
+      if (!res.ok) throw new Error('Failed to fetch');
       ntaData = await res.json();
 
       geojsonLayer = L.geoJSON(ntaData, {
@@ -807,15 +681,11 @@
       map.fitBounds(geojsonLayer.getBounds());
       document.getElementById('loading').style.display = 'none';
 
-      if (Object.keys(HARD_SCORES).length > 0) {
-        scores = HARD_SCORES;
-        const count = Object.keys(scores).length;
-        document.getElementById('data-status').textContent = `${count} NTAs scored`;
-        document.getElementById('data-status').className = 'status-badge loaded';
-        geojsonLayer.setStyle(styleFeature);
-        updateStats();
-        updateTopList();
-      }
+      const count = Object.keys(scores).length;
+      document.getElementById('data-status').textContent = `${count} NTAs scored`;
+      document.getElementById('data-status').className = 'status-badge loaded';
+      updateStats();
+      updateTopList();
 
     } catch (err) {
       document.getElementById('loading').innerHTML = `
@@ -823,10 +693,7 @@
           <div style="font-size:24px;margin-bottom:12px">⚠️</div>
           <div class="loading-text" style="color:#ef4444;margin-bottom:8px">Could not load NTA boundaries</div>
           <div class="loading-text" style="font-size:10px;line-height:1.8">
-            NYC OpenData may be blocking the request.<br/>
-            Download the NTA GeoJSON from<br/>
-            data.cityofnewyork.us and host it locally,<br/>
-            then update the NTA_GEOJSON_URL variable.
+            Make sure nynta2020.geojson is in the same folder as this file.
           </div>
         </div>
       `;
