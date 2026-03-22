@@ -73,7 +73,7 @@
     #map { flex: 1; background: #0a0c10; }
 
     aside {
-      width: 240px;
+      width: 320px;
       background: var(--panel);
       border-left: 1px solid var(--border);
       display: flex;
@@ -125,7 +125,18 @@
       color: var(--text);
     }
 
-    #tooltip-panel { padding: 16px; flex: 1; }
+    .floating-tooltip {
+      position: fixed;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      z-index: 1000;
+      pointer-events: none;
+      font-size: 11px;
+      max-width: 220px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
 
     .tooltip-name {
       font-size: 13px;
@@ -203,6 +214,206 @@
     .empty-icon { font-size: 28px; opacity: 0.3; }
     .empty-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
+    .weight-adjustor {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .weight-adjustor.active { display: flex; }
+
+    .weight-adjustor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .weight-adjustor-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .weight-slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .weight-slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .weight-slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .weight-slider-name {
+      font-size: 10px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .weight-input-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .weight-slider-input {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .weight-slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .weight-slider-input::-webkit-slider-thumb:hover {
+      background: #60a5fa;
+    }
+
+    .weight-slider-input::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    .weight-slider-input::-moz-range-thumb:hover {
+      background: #60a5fa;
+    }
+
+    .weight-input-field {
+      width: 50px;
+      padding: 4px 6px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      border-radius: 2px;
+      text-align: right;
+    }
+
+    .weight-input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .weight-error {
+      padding: 8px 10px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 2px;
+      color: #fca5a5;
+      font-size: 9px;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .weight-error.show {
+      display: block;
+    }
+
+    .weight-sum-display {
+      padding: 6px 10px;
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-size: 9px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .weight-adjustor-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .weight-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .weight-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    .weight-btn.reset {
+      flex: 1;
+    }
+
+    .adjust-weights-btn {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .adjust-weights-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .adjust-weights-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
     .leaflet-container { background: #0a0c10 !important; }
     .leaflet-tile-pane { filter: brightness(0.6) saturate(0.4) hue-rotate(200deg); }
 
@@ -260,6 +471,68 @@
       </div>
     </div>
 
+    <div class="panel-section">
+      <button class="adjust-weights-btn" id="adjust-weights-toggle">Adjust Weights</button>
+      <div class="weight-adjustor" id="weight-adjustor">
+        <div class="weight-adjustor-header">
+          <div class="weight-adjustor-title">Variable Weights</div>
+        </div>
+        <div class="weight-error" id="weight-error"></div>
+        <div class="weight-sum-display" id="weight-sum-display">Sum: 1.00</div>
+        <div class="weight-slider-group">
+          <div class="weight-slider-item">
+            <div class="weight-slider-label">
+              <span class="weight-slider-name">Income</span>
+            </div>
+            <div class="weight-input-group">
+              <input type="range" min="0" max="1" step="0.01" value="0.25" class="weight-slider-input" data-weight="income">
+              <input type="number" min="0" max="1" step="0.01" value="0.25" class="weight-input-field" data-weight="income" placeholder="0.00">
+            </div>
+          </div>
+          <div class="weight-slider-item">
+            <div class="weight-slider-label">
+              <span class="weight-slider-name">Car Commuters</span>
+            </div>
+            <div class="weight-input-group">
+              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="car">
+              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="car" placeholder="0.00">
+            </div>
+          </div>
+          <div class="weight-slider-item">
+            <div class="weight-slider-label">
+              <span class="weight-slider-name">Bus vs Subway</span>
+            </div>
+            <div class="weight-input-group">
+              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="bus_subway">
+              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="bus_subway" placeholder="0.00">
+            </div>
+          </div>
+          <div class="weight-slider-item">
+            <div class="weight-slider-label">
+              <span class="weight-slider-name">Reliability</span>
+            </div>
+            <div class="weight-input-group">
+              <input type="range" min="0" max="1" step="0.01" value="0.15" class="weight-slider-input" data-weight="reliability">
+              <input type="number" min="0" max="1" step="0.01" value="0.15" class="weight-input-field" data-weight="reliability" placeholder="0.00">
+            </div>
+          </div>
+          <div class="weight-slider-item">
+            <div class="weight-slider-label">
+              <span class="weight-slider-name">Ridership</span>
+            </div>
+            <div class="weight-input-group">
+              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="ridership">
+              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="ridership" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+        <div class="weight-adjustor-buttons">
+          <button class="weight-btn" id="apply-weights">Apply</button>
+          <button class="weight-btn reset" id="reset-weights">Reset</button>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-section" id="stats-panel">
       <div class="panel-label">Statistics</div>
       <div class="empty-state">
@@ -276,17 +549,21 @@
       </div>
     </div>
 
-    <div id="tooltip-panel">
-      <div class="panel-label">Selected NTA</div>
-      <div id="hover-content">
-        <div class="tooltip-empty">Hover over a neighborhood to see details.</div>
-      </div>
-    </div>
+
   </aside>
 </main>
 
 <script>
   const NTA_GEOJSON_URL = './nynta2020.geojson';
+  const COMPONENT_SCORES_URL = './component_scores.json';
+
+  const DEFAULT_WEIGHTS = {
+    income: 0.25,
+    car: 0.20,
+    bus_subway: 0.20,
+    reliability: 0.15,
+    ridership: 0.20
+  };
 
   const HARD_SCORES = {
     'BK0101': 0.571779,
@@ -529,7 +806,11 @@
   };
 
   let map, geojsonLayer, ntaData = null;
-  const scores = HARD_SCORES;
+  let componentScores = null;
+  let currentWeights = { ...DEFAULT_WEIGHTS };
+  let scores = HARD_SCORES;
+  let floatingTooltip = null;
+  let lastMousePos = { x: 0, y: 0 };
 
   function lerpColor(a, b, t) {
     const ah = parseInt(a.slice(1), 16);
@@ -561,6 +842,18 @@
     return 0.55 + score * 0.4;
   }
 
+  function calculateScore(ntaCode) {
+    if (!componentScores || !componentScores[ntaCode]) return null;
+    const components = componentScores[ntaCode];
+    return (
+      currentWeights.income * components.income +
+      currentWeights.car * components.car +
+      currentWeights.bus_subway * components.bus_subway +
+      currentWeights.reliability * components.reliability +
+      currentWeights.ridership * components.ridership
+    );
+  }
+
   function styleFeature(feature) {
     const code = feature.properties.NTA2020 || feature.properties.NTACode || feature.properties.ntacode;
     const score = scores[code] !== undefined ? scores[code] : null;
@@ -584,6 +877,17 @@
         const name = props.NTAName || props.ntaname || 'Unknown';
         updateHoverPanel(name, code, scores[code]);
       },
+      mousemove: function(e) {
+        lastMousePos.x = e.originalEvent.clientX;
+        lastMousePos.y = e.originalEvent.clientY;
+        // Update tooltip position
+        if (floatingTooltip && floatingTooltip.style.display === 'block') {
+          const offsetX = 12;
+          const offsetY = -140;
+          floatingTooltip.style.left = (lastMousePos.x + offsetX) + 'px';
+          floatingTooltip.style.top = (lastMousePos.y + offsetY) + 'px';
+        }
+      },
       mouseout: function(e) {
         geojsonLayer.resetStyle(e.target);
         resetHoverPanel();
@@ -592,10 +896,15 @@
   }
 
   function updateHoverPanel(name, code, score) {
-    const content = document.getElementById('hover-content');
+    if (!floatingTooltip) {
+      floatingTooltip = document.createElement('div');
+      floatingTooltip.className = 'floating-tooltip';
+      document.body.appendChild(floatingTooltip);
+    }
+    
     if (score !== undefined) {
       const pct = Math.round(score * 100);
-      content.innerHTML = `
+      floatingTooltip.innerHTML = `
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
         <div class="tooltip-score-label">Need Score</div>
@@ -605,21 +914,30 @@
         </div>
       `;
     } else {
-      content.innerHTML = `
+      floatingTooltip.innerHTML = `
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
         <div class="tooltip-empty" style="margin-top:12px">No score for this NTA.</div>
       `;
     }
+    
+    // Position tooltip near cursor (offset to top-right)
+    const offsetX = 12;
+    const offsetY = -140;
+    floatingTooltip.style.left = (lastMousePos.x + offsetX) + 'px';
+    floatingTooltip.style.top = (lastMousePos.y + offsetY) + 'px';
+    floatingTooltip.style.display = 'block';
   }
 
   function resetHoverPanel() {
-    document.getElementById('hover-content').innerHTML =
-      '<div class="tooltip-empty">Hover over a neighborhood to see details.</div>';
+    if (floatingTooltip) {
+      floatingTooltip.style.display = 'none';
+    }
   }
 
   function updateStats() {
-    const vals = Object.values(scores);
+    const vals = Object.values(scores).filter(v => v !== null);
+    if (vals.length === 0) return;
     const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
     const max = Math.max(...vals);
     const min = Math.min(...vals);
@@ -655,7 +973,145 @@
     `;
   }
 
+  function recalculateScores() {
+    if (!componentScores) {
+      // Fall back to hard-coded scores if component scores not loaded
+      scores = HARD_SCORES;
+    } else {
+      scores = {};
+      for (const ntaCode in componentScores) {
+        scores[ntaCode] = calculateScore(ntaCode);
+      }
+    }
+    
+    // Update map visualization
+    if (geojsonLayer) {
+      geojsonLayer.eachLayer(function(layer) {
+        layer.setStyle(styleFeature(layer.feature));
+      });
+    }
+    
+    // Update stats and top list
+    updateStats();
+    updateTopList();
+  }
+
+  function updateWeightSum() {
+    const sliders = document.querySelectorAll('.weight-input-field');
+    let sum = 0;
+    sliders.forEach(input => {
+      sum += parseFloat(input.value) || 0;
+    });
+    const sumDisplay = document.getElementById('weight-sum-display');
+    sumDisplay.textContent = `Sum: ${sum.toFixed(2)}`;
+    return sum;
+  }
+
+  function setupWeightSliders() {
+    const rangeSliders = document.querySelectorAll('.weight-slider-input');
+    const numberInputs = document.querySelectorAll('.weight-input-field');
+    const adjustBtn = document.getElementById('adjust-weights-toggle');
+    const adjustor = document.getElementById('weight-adjustor');
+    const applyBtn = document.getElementById('apply-weights');
+    const resetBtn = document.getElementById('reset-weights');
+    const errorMsg = document.getElementById('weight-error');
+
+    // Toggle adjustor visibility
+    adjustBtn.addEventListener('click', () => {
+      adjustor.classList.toggle('active');
+      adjustBtn.classList.toggle('active');
+    });
+
+    // Sync range slider to number input and vice versa
+    rangeSliders.forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const weight = e.target.dataset.weight;
+        const value = parseFloat(e.target.value);
+        const numberInput = document.querySelector(`.weight-input-field[data-weight="${weight}"]`);
+        numberInput.value = value.toFixed(2);
+        updateWeightSum();
+      });
+    });
+
+    numberInputs.forEach(input => {
+      input.addEventListener('input', (e) => {
+        const weight = e.target.dataset.weight;
+        let value = parseFloat(e.target.value) || 0;
+        // Clamp to 0-1 range
+        value = Math.max(0, Math.min(1, value));
+        const slider = document.querySelector(`.weight-slider-input[data-weight="${weight}"]`);
+        slider.value = value;
+        updateWeightSum();
+      });
+
+      input.addEventListener('blur', (e) => {
+        const weight = e.target.dataset.weight;
+        let value = parseFloat(e.target.value) || 0;
+        value = Math.max(0, Math.min(1, value));
+        e.target.value = value.toFixed(2);
+      });
+    });
+
+    // Apply weights with validation
+    applyBtn.addEventListener('click', () => {
+      const sum = updateWeightSum();
+      const tolerance = 0.01; // Allow 1% tolerance for floating point errors
+      
+      if (Math.abs(sum - 1.0) > tolerance) {
+        errorMsg.textContent = `Error: Weights must sum to 1.00 (currently ${sum.toFixed(2)})`;
+        errorMsg.classList.add('show');
+        return;
+      }
+      
+      errorMsg.classList.remove('show');
+      
+      // Update current weights
+      numberInputs.forEach(input => {
+        const weight = input.dataset.weight;
+        currentWeights[weight] = parseFloat(input.value);
+      });
+      
+      recalculateScores();
+    });
+
+    // Reset weights to defaults
+    resetBtn.addEventListener('click', () => {
+      currentWeights = { ...DEFAULT_WEIGHTS };
+      rangeSliders.forEach(slider => {
+        const weight = slider.dataset.weight;
+        slider.value = DEFAULT_WEIGHTS[weight];
+      });
+      numberInputs.forEach(input => {
+        const weight = input.dataset.weight;
+        input.value = DEFAULT_WEIGHTS[weight].toFixed(2);
+      });
+      updateWeightSum();
+      errorMsg.classList.remove('show');
+      recalculateScores();
+    });
+
+    // Initialize sum display
+    updateWeightSum();
+  }
+
+  async function loadComponentScores() {
+    try {
+      const res = await fetch(COMPONENT_SCORES_URL);
+      if (res.ok) {
+        componentScores = await res.json();
+        console.log('Loaded component scores for', Object.keys(componentScores).length, 'NTAs');
+      } else {
+        console.warn('Failed to load component scores, using default formula');
+      }
+    } catch (err) {
+      console.warn('Could not load component scores:', err);
+    }
+  }
+
   async function initMap() {
+    // Load component scores first
+    await loadComponentScores();
+
     map = L.map('map', {
       center: [40.7128, -73.9],
       zoom: 11,
@@ -686,6 +1142,7 @@
       document.getElementById('data-status').className = 'status-badge loaded';
       updateStats();
       updateTopList();
+      setupWeightSliders();
 
     } catch (err) {
       document.getElementById('loading').innerHTML = `
