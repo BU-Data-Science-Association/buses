@@ -100,7 +100,7 @@
     .legend-bar {
       height: 10px;
       border-radius: 3px;
-      background: linear-gradient(to right, #4a0000, #ef4444, #ff0000);
+      background: linear-gradient(to right, #e8a8a8, #ef4444, #7a0202);
       margin-bottom: 6px;
     }
     .legend-labels {
@@ -547,7 +547,7 @@
 
   function getColor(score) {
     if (score === null || score === undefined) return '#1e2033';
-    const stops = ['#4a0000', '#ef4444', '#ff0000'];
+    const stops = ['#e8a8a8', '#ef4444', '#7a0202'];
     const t = (score - MIN_SCORE) / (MAX_SCORE - MIN_SCORE);
     const clamped = Math.max(0, Math.min(1, t)) * (stops.length - 1);
     const i = Math.floor(clamped);
