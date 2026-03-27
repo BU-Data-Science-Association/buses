@@ -10,276 +10,99 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0f14;
-      --panel: #13161e;
-      --border: #1f2535;
-      --accent: #3b82f6;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --priority: #facc15;
-      --secondary: #60a5fa;
+      --bg: #0d0f14; --panel: #13161e; --border: #1f2535;
+      --accent: #3b82f6; --text: #e2e8f0; --muted: #64748b;
+      --priority: #facc15; --secondary: #60a5fa;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'IBM Plex Sans', sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    header {
-      padding: 14px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      background: var(--panel);
-    }
-
-    .header-left h1 {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-    .header-left p {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .status-badge {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-    .status-badge.loaded { border-color: #22c55e55; color: #22c55e; background: #22c55e11; }
-
-    main { display: flex; flex: 1; overflow: hidden; }
-    #map { flex: 1; background: #0a0c10; }
-
-    aside {
-      width: 320px;
-      background: var(--panel);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      overflow-y: auto;
-    }
-
-    .panel-section { padding: 16px; border-bottom: 1px solid var(--border); }
-
-    .panel-label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .legend-bar {
-      height: 10px;
-      border-radius: 3px;
-      background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
-      margin-bottom: 6px;
-    }
-    .legend-labels {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-    }
-
-    .route-toggle-group { display: flex; flex-direction: column; gap: 8px; }
-    .route-toggle-item {
-      display: flex; align-items: center; gap: 8px;
-      cursor: pointer; font-size: 11px; color: var(--text); user-select: none;
-    }
-    .route-toggle-item input[type="checkbox"] { display: none; }
-    .route-toggle-swatch { width: 28px; height: 4px; border-radius: 2px; flex-shrink: 0; }
-    .route-toggle-box {
-      width: 14px; height: 14px; border: 1px solid var(--border);
-      border-radius: 2px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-    }
-    .route-toggle-item input:checked + .route-toggle-box { background: var(--accent); border-color: var(--accent); }
-    .route-toggle-item input:checked + .route-toggle-box::after { content: '✓'; font-size: 9px; color: #fff; }
-    .route-toggle-desc { color: var(--muted); font-size: 9px; margin-top: 2px; }
-    .route-click-hint { font-size: 9px; color: var(--muted); margin-top: 8px; font-style: italic; }
-
-    .stat-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-    .stat-label { font-size: 11px; color: var(--muted); }
-    .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
-
-    .floating-tooltip {
-      position: fixed; background: #13161e;
-      border: 1px solid #1f2535; border-radius: 4px; padding: 12px;
-      z-index: 1000; pointer-events: none; font-size: 11px;
-      min-width: 200px; max-width: 240px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    .tooltip-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; color: #e2e8f0; }
-    .tooltip-code { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #64748b; margin-bottom: 10px; }
-    .tooltip-score-label {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-      letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 2px;
-    }
-    .tooltip-score-val { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; }
-    .tooltip-bar-wrap { margin-top: 8px; height: 4px; background: #1f2535; border-radius: 2px; overflow: hidden; }
-    .tooltip-bar-fill {
-      height: 100%; background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
-      border-radius: 2px; transition: width 0.3s;
-    }
-    .tooltip-divider { border: none; border-top: 1px solid #1f2535; margin: 10px 0; }
-    .tooltip-components { display: flex; flex-direction: column; gap: 5px; }
-    .tooltip-component-row { display: flex; justify-content: space-between; align-items: center; }
-    .tooltip-component-name { font-size: 10px; color: #64748b; min-width: 68px; }
-    .tooltip-component-bar-wrap { flex: 1; margin: 0 8px; height: 3px; background: #1f2535; border-radius: 2px; overflow: hidden; }
-    .tooltip-component-bar-fill { height: 100%; background: #3b82f6; border-radius: 2px; }
-    .tooltip-component-val { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: #e2e8f0; width: 32px; text-align: right; }
-    .tooltip-empty { font-size: 11px; color: #64748b; line-height: 1.6; }
-
+    body { background:var(--bg); color:var(--text); font-family:'IBM Plex Sans',sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+    header { padding:14px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; background:var(--panel); }
+    .header-left h1 { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+    .header-left p { font-size:11px; color:var(--muted); margin-top:2px; font-family:'IBM Plex Mono',monospace; }
+    .status-badge { font-family:'IBM Plex Mono',monospace; font-size:10px; padding:4px 10px; border-radius:20px; border:1px solid var(--border); color:var(--muted); }
+    .status-badge.loaded { border-color:#22c55e55; color:#22c55e; background:#22c55e11; }
+    main { display:flex; flex:1; overflow:hidden; }
+    #map { flex:1; background:#0a0c10; }
+    aside { width:320px; background:var(--panel); border-left:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
+    .panel-section { padding:16px; border-bottom:1px solid var(--border); }
+    .panel-label { font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+    .legend-bar { height:10px; border-radius:3px; background:linear-gradient(to right,#22c55e,#eab308,#ef4444); margin-bottom:6px; }
+    .legend-labels { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted); }
+    .route-toggle-group { display:flex; flex-direction:column; gap:8px; }
+    .route-toggle-item { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:11px; color:var(--text); user-select:none; }
+    .route-toggle-item input[type="checkbox"] { display:none; }
+    .route-toggle-swatch { width:28px; height:4px; border-radius:2px; flex-shrink:0; }
+    .route-toggle-box { width:14px; height:14px; border:1px solid var(--border); border-radius:2px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+    .route-toggle-item input:checked + .route-toggle-box { background:var(--accent); border-color:var(--accent); }
+    .route-toggle-item input:checked + .route-toggle-box::after { content:'✓'; font-size:9px; color:#fff; }
+    .route-toggle-desc { color:var(--muted); font-size:9px; margin-top:2px; }
+    .route-click-hint { font-size:9px; color:var(--muted); margin-top:8px; font-style:italic; }
+    .stat-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+    .stat-label { font-size:11px; color:var(--muted); }
+    .stat-val { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; color:var(--text); }
+    .floating-tooltip { position:fixed; background:#13161e; border:1px solid #1f2535; border-radius:4px; padding:12px; z-index:1000; pointer-events:none; font-size:11px; min-width:200px; max-width:240px; box-shadow:0 4px 12px rgba(0,0,0,.5); }
+    .tooltip-name { font-size:13px; font-weight:600; margin-bottom:2px; color:#e2e8f0; }
+    .tooltip-code { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#64748b; margin-bottom:10px; }
+    .tooltip-score-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#64748b; margin-bottom:2px; }
+    .tooltip-score-val { font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; }
+    .tooltip-bar-wrap { margin-top:8px; height:4px; background:#1f2535; border-radius:2px; overflow:hidden; }
+    .tooltip-bar-fill { height:100%; background:linear-gradient(to right,#22c55e,#eab308,#ef4444); border-radius:2px; transition:width .3s; }
+    .tooltip-divider { border:none; border-top:1px solid #1f2535; margin:10px 0; }
+    .tooltip-components { display:flex; flex-direction:column; gap:5px; }
+    .tooltip-component-row { display:flex; justify-content:space-between; align-items:center; }
+    .tooltip-component-name { font-size:10px; color:#64748b; min-width:68px; }
+    .tooltip-component-bar-wrap { flex:1; margin:0 8px; height:3px; background:#1f2535; border-radius:2px; overflow:hidden; }
+    .tooltip-component-bar-fill { height:100%; background:#3b82f6; border-radius:2px; }
+    .tooltip-component-val { font-family:'IBM Plex Mono',monospace; font-size:9px; color:#e2e8f0; width:32px; text-align:right; }
+    .tooltip-empty { font-size:11px; color:#64748b; line-height:1.6; }
     /* Dark Leaflet popup */
-    .leaflet-popup-content-wrapper {
-      background: #13161e !important;
-      border: 1px solid #1f2535 !important;
-      border-radius: 4px !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important;
-      padding: 0 !important;
-    }
-    .leaflet-popup-content {
-      margin: 12px 14px !important;
-      color: #e2e8f0 !important;
-      font-family: 'IBM Plex Mono', monospace !important;
-    }
-    .leaflet-popup-tip-container { display: none; }
-    .leaflet-popup-close-button {
-      color: #64748b !important;
-      font-size: 16px !important;
-      padding: 4px 8px !important;
-    }
-    .leaflet-popup-close-button:hover { color: #e2e8f0 !important; }
-
-    .top-list { list-style: none; }
-    .top-list li {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 10px;
-    }
-    .top-list li:last-child { border-bottom: none; }
-    .top-list .rank { font-family: 'IBM Plex Mono', monospace; color: var(--muted); width: 16px; }
-    .top-list .nta-name { flex: 1; padding: 0 6px; color: var(--text); }
-    .top-list .nta-score { font-family: 'IBM Plex Mono', monospace; color: var(--text); font-weight: 600; }
-
-    .weight-adjustor {
-      display: none; flex-direction: column; gap: 12px;
-      padding: 16px; background: rgba(59,130,246,0.1);
-      border: 1px solid var(--border); border-radius: 4px; margin-bottom: 16px;
-    }
-    .weight-adjustor.active { display: flex; }
-    .weight-adjustor-title {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600;
-      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
-    }
-    .weight-slider-group { display: flex; flex-direction: column; gap: 8px; }
-    .weight-slider-item { display: flex; flex-direction: column; gap: 4px; }
-    .weight-slider-name { font-size: 10px; color: var(--text); }
-    .weight-input-group { display: flex; gap: 6px; align-items: center; }
-    .weight-slider-input {
-      flex: 1; height: 4px; border-radius: 2px;
-      background: var(--border); outline: none;
-      -webkit-appearance: none; appearance: none;
-    }
-    .weight-slider-input::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--accent); cursor: pointer;
-    }
-    .weight-slider-input::-moz-range-thumb {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--accent); cursor: pointer; border: none;
-    }
-    .weight-input-field {
-      width: 50px; padding: 4px 6px;
-      background: var(--border); border: 1px solid var(--border);
-      color: var(--text); font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px; border-radius: 2px; text-align: right;
-    }
-    .weight-input-field:focus { outline: none; border-color: var(--accent); background: rgba(59,130,246,0.1); }
-    .weight-error {
-      padding: 8px 10px; background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3); border-radius: 2px;
-      color: #fca5a5; font-size: 9px; margin-bottom: 8px; display: none;
-    }
-    .weight-error.show { display: block; }
-    .weight-sum-display {
-      padding: 6px 10px; background: rgba(59,130,246,0.05);
-      border: 1px solid var(--border); border-radius: 2px;
-      font-size: 9px; color: var(--muted); margin-bottom: 8px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .weight-adjustor-buttons { display: flex; gap: 8px; margin-top: 8px; }
-    .weight-btn {
-      flex: 1; padding: 6px 10px; border: 1px solid var(--border);
-      background: transparent; color: var(--text);
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      border-radius: 2px; cursor: pointer; transition: all 0.2s;
-    }
-    .weight-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .adjust-weights-btn {
-      padding: 8px 12px; background: transparent;
-      border: 1px solid var(--border); color: var(--accent);
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      border-radius: 2px; cursor: pointer; transition: all 0.2s; width: 100%;
-    }
-    .adjust-weights-btn:hover, .adjust-weights-btn.active { background: var(--accent); color: var(--bg); }
-
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; padding: 24px; text-align: center; }
-    .empty-icon { font-size: 28px; opacity: 0.3; }
-    .empty-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
-
-    .leaflet-container { background: #0a0c10 !important; }
-    .leaflet-tile-pane { filter: brightness(0.6) saturate(0.4) hue-rotate(200deg); }
-
-    .loading-overlay {
-      position: absolute; inset: 0; background: var(--bg);
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; z-index: 9999; gap: 16px;
-    }
-    .loading-text { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.1em; }
-    .spinner {
-      width: 32px; height: 32px; border: 2px solid var(--border);
-      border-top-color: var(--accent); border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .leaflet-popup-content-wrapper { background:#13161e !important; border:1px solid #1f2535 !important; border-radius:4px !important; box-shadow:0 4px 16px rgba(0,0,0,.6) !important; padding:0 !important; }
+    .leaflet-popup-content { margin:12px 14px !important; color:#e2e8f0 !important; font-family:'IBM Plex Mono',monospace !important; }
+    .leaflet-popup-tip-container { display:none; }
+    .leaflet-popup-close-button { color:#64748b !important; }
+    .leaflet-popup-close-button:hover { color:#e2e8f0 !important; }
+    .top-list { list-style:none; }
+    .top-list li { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); font-size:10px; }
+    .top-list li:last-child { border-bottom:none; }
+    .top-list .rank { font-family:'IBM Plex Mono',monospace; color:var(--muted); width:16px; }
+    .top-list .nta-name { flex:1; padding:0 6px; color:var(--text); }
+    .top-list .nta-score { font-family:'IBM Plex Mono',monospace; color:var(--text); font-weight:600; }
+    .weight-adjustor { display:none; flex-direction:column; gap:12px; padding:16px; background:rgba(59,130,246,.1); border:1px solid var(--border); border-radius:4px; margin-bottom:16px; }
+    .weight-adjustor.active { display:flex; }
+    .weight-adjustor-title { font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+    .weight-slider-group { display:flex; flex-direction:column; gap:8px; }
+    .weight-slider-item { display:flex; flex-direction:column; gap:4px; }
+    .weight-slider-name { font-size:10px; color:var(--text); }
+    .weight-input-group { display:flex; gap:6px; align-items:center; }
+    .weight-slider-input { flex:1; height:4px; border-radius:2px; background:var(--border); outline:none; -webkit-appearance:none; appearance:none; }
+    .weight-slider-input::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:var(--accent); cursor:pointer; }
+    .weight-slider-input::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:var(--accent); cursor:pointer; border:none; }
+    .weight-input-field { width:50px; padding:4px 6px; background:var(--border); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:10px; border-radius:2px; text-align:right; }
+    .weight-input-field:focus { outline:none; border-color:var(--accent); background:rgba(59,130,246,.1); }
+    .weight-error { padding:8px 10px; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:2px; color:#fca5a5; font-size:9px; margin-bottom:8px; display:none; }
+    .weight-error.show { display:block; }
+    .weight-sum-display { padding:6px 10px; background:rgba(59,130,246,.05); border:1px solid var(--border); border-radius:2px; font-size:9px; color:var(--muted); margin-bottom:8px; font-family:'IBM Plex Mono',monospace; }
+    .weight-adjustor-buttons { display:flex; gap:8px; margin-top:8px; }
+    .weight-btn { flex:1; padding:6px 10px; border:1px solid var(--border); background:transparent; color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:all .2s; }
+    .weight-btn:hover { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+    .adjust-weights-btn { padding:8px 12px; background:transparent; border:1px solid var(--border); color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:all .2s; width:100%; }
+    .adjust-weights-btn:hover, .adjust-weights-btn.active { background:var(--accent); color:var(--bg); }
+    .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:8px; padding:24px; text-align:center; }
+    .empty-icon { font-size:28px; opacity:.3; }
+    .empty-text { font-size:11px; color:var(--muted); line-height:1.6; }
+    .leaflet-container { background:#0a0c10 !important; }
+    .leaflet-tile-pane { filter:brightness(.6) saturate(.4) hue-rotate(200deg); }
+    .loading-overlay { position:absolute; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; gap:16px; }
+    .loading-text { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); letter-spacing:.1em; }
+    .spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
-
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text">Loading NTA boundaries...</div>
 </div>
-
 <header>
   <div class="header-left">
     <h1>NYC NTA Bus Need Map</h1>
@@ -287,17 +110,14 @@
   </div>
   <span class="status-badge" id="data-status">Loading...</span>
 </header>
-
 <main>
   <div id="map"></div>
   <aside>
-
     <div class="panel-section">
       <div class="panel-label">Need Score Legend</div>
       <div class="legend-bar"></div>
       <div class="legend-labels"><span>Low Need</span><span>High Need</span></div>
     </div>
-
     <div class="panel-section">
       <div class="panel-label">Bus Routes</div>
       <div class="route-toggle-group">
@@ -326,7 +146,6 @@
       </div>
       <div class="route-click-hint">Click a route line to see its ID</div>
     </div>
-
     <div class="panel-section">
       <button class="adjust-weights-btn" id="adjust-weights-toggle">Adjust Weights</button>
       <div class="weight-adjustor" id="weight-adjustor">
@@ -334,41 +153,11 @@
         <div class="weight-error" id="weight-error"></div>
         <div class="weight-sum-display" id="weight-sum-display">Sum: 1.00</div>
         <div class="weight-slider-group">
-          <div class="weight-slider-item">
-            <span class="weight-slider-name">Income</span>
-            <div class="weight-input-group">
-              <input type="range" min="0" max="1" step="0.01" value="0.25" class="weight-slider-input" data-weight="income">
-              <input type="number" min="0" max="1" step="0.01" value="0.25" class="weight-input-field" data-weight="income">
-            </div>
-          </div>
-          <div class="weight-slider-item">
-            <span class="weight-slider-name">Car Commuters</span>
-            <div class="weight-input-group">
-              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="car">
-              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="car">
-            </div>
-          </div>
-          <div class="weight-slider-item">
-            <span class="weight-slider-name">Bus vs Subway</span>
-            <div class="weight-input-group">
-              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="bus_subway">
-              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="bus_subway">
-            </div>
-          </div>
-          <div class="weight-slider-item">
-            <span class="weight-slider-name">Reliability</span>
-            <div class="weight-input-group">
-              <input type="range" min="0" max="1" step="0.01" value="0.15" class="weight-slider-input" data-weight="reliability">
-              <input type="number" min="0" max="1" step="0.01" value="0.15" class="weight-input-field" data-weight="reliability">
-            </div>
-          </div>
-          <div class="weight-slider-item">
-            <span class="weight-slider-name">Ridership</span>
-            <div class="weight-input-group">
-              <input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="ridership">
-              <input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="ridership">
-            </div>
-          </div>
+          <div class="weight-slider-item"><span class="weight-slider-name">Income</span><div class="weight-input-group"><input type="range" min="0" max="1" step="0.01" value="0.25" class="weight-slider-input" data-weight="income"><input type="number" min="0" max="1" step="0.01" value="0.25" class="weight-input-field" data-weight="income"></div></div>
+          <div class="weight-slider-item"><span class="weight-slider-name">Car Commuters</span><div class="weight-input-group"><input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="car"><input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="car"></div></div>
+          <div class="weight-slider-item"><span class="weight-slider-name">Bus vs Subway</span><div class="weight-input-group"><input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="bus_subway"><input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="bus_subway"></div></div>
+          <div class="weight-slider-item"><span class="weight-slider-name">Reliability</span><div class="weight-input-group"><input type="range" min="0" max="1" step="0.01" value="0.15" class="weight-slider-input" data-weight="reliability"><input type="number" min="0" max="1" step="0.01" value="0.15" class="weight-input-field" data-weight="reliability"></div></div>
+          <div class="weight-slider-item"><span class="weight-slider-name">Ridership</span><div class="weight-input-group"><input type="range" min="0" max="1" step="0.01" value="0.20" class="weight-slider-input" data-weight="ridership"><input type="number" min="0" max="1" step="0.01" value="0.20" class="weight-input-field" data-weight="ridership"></div></div>
         </div>
         <div class="weight-adjustor-buttons">
           <button class="weight-btn" id="apply-weights">Apply</button>
@@ -376,30 +165,26 @@
         </div>
       </div>
     </div>
-
     <div class="panel-section" id="stats-panel">
       <div class="panel-label">Statistics</div>
       <div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Loading...</div></div>
     </div>
-
     <div class="panel-section" id="top-panel">
       <div class="panel-label">Top 10 Highest Need</div>
       <div class="empty-state"><div class="empty-icon">📍</div><div class="empty-text">Loading...</div></div>
     </div>
-
   </aside>
 </main>
-
 <script>
   const NTA_GEOJSON_URL      = './nynta2020.geojson';
   const COMPONENT_SCORES_URL = './component_scores.json';
   const SCORES_CSV_URL       = './bus_need_index_final.csv';
   const ROUTES_GEOJSON_URL   = './bus_routes.geojson';
-
   const DEFAULT_WEIGHTS = { income:0.25, car:0.20, bus_subway:0.20, reliability:0.15, ridership:0.20 };
 
   let map, geojsonLayer, ntaData = null;
-  let routeLayer = { priority: null, secondary: null };
+  let routeVisualLayer = { priority:null, secondary:null };
+  let routeHitLayer    = { priority:null, secondary:null };
   let componentScores = null;
   let currentWeights = { ...DEFAULT_WEIGHTS };
   let scores = {};
@@ -437,104 +222,116 @@
       if (!res.ok) return;
       const data = await res.json();
 
-      const priorityFeatures  = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier === 'priority') };
-      const secondaryFeatures = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier === 'secondary') };
+      // Two panes: visual routes at z=450, hit areas at z=460
+      map.createPane('routeVisual');
+      map.getPane('routeVisual').style.zIndex = 450;
+      map.getPane('routeVisual').style.pointerEvents = 'none'; // visual only
 
-      // ── KEY FIX: use a custom pane with higher z-index than NTA polygons ──
-      // NTA overlay pane is z-index 400. We set routePane to 450 so routes
-      // sit above NTAs and receive pointer events first.
-      map.createPane('routePane');
-      map.getPane('routePane').style.zIndex = 450;
-      // Ensure pointer events are enabled on this pane
-      map.getPane('routePane').style.pointerEvents = 'auto';
+      map.createPane('routeHit');
+      map.getPane('routeHit').style.zIndex = 460;
+      map.getPane('routeHit').style.pointerEvents = 'auto';
+
+      const priorityF  = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='priority') };
+      const secondaryF = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='secondary') };
 
       function popupContent(routeId, tier, count) {
-        const tierColor = tier === 'priority' ? '#facc15' : '#60a5fa';
-        const tierLabel = tier === 'priority' ? 'Priority' : 'Secondary';
-        return `
-          <div style="font-family:'IBM Plex Mono',monospace;color:#e2e8f0;min-width:140px">
-            <div style="font-size:18px;font-weight:600;color:${tierColor};margin-bottom:4px">${routeId}</div>
-            <div style="font-size:10px;color:#64748b">${tierLabel} route</div>
-            <div style="font-size:10px;color:#64748b;margin-top:2px">Serves ${count} high-need NTA${count !== 1 ? 's' : ''}</div>
-          </div>
-        `;
+        const color = tier === 'priority' ? '#facc15' : '#60a5fa';
+        const label = tier === 'priority' ? 'Priority' : 'Secondary';
+        return `<div style="font-family:'IBM Plex Mono',monospace;color:#e2e8f0;min-width:160px">
+          <div style="font-size:18px;font-weight:600;color:${color};margin-bottom:4px">${routeId}</div>
+          <div style="font-size:10px;color:#94a3b8">${label} route</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:2px">Serves ${count} high-need NTA${count!==1?'s':''}</div>
+        </div>`;
       }
 
-      function makeHandler(tier) {
-        return (feature, layer) => {
-          layer.on('click', e => {
-            L.popup({ closeButton: true, offset: [0, -2] })
-              .setLatLng(e.latlng)
-              .setContent(popupContent(
-                feature.properties.route_id,
-                tier,
-                feature.properties.high_need_count
-              ))
-              .openOn(map);
-            L.DomEvent.stopPropagation(e);
-          });
-        };
+      function makeHandlers(tier, featureCollection) {
+        // Visual layer — just color, no pointer events
+        const visual = L.geoJSON(featureCollection, {
+          pane: 'routeVisual',
+          interactive: false,
+          style: tier === 'priority'
+            ? { color:'#facc15', weight:3, opacity:0.9 }
+            : { color:'#60a5fa', weight:2, opacity:0.8 }
+        });
+
+        // Hit layer — wide transparent line, handles all clicks
+        const hit = L.geoJSON(featureCollection, {
+          pane: 'routeHit',
+          style: { color:'transparent', weight:14, opacity:0 },
+          onEachFeature: (feature, layer) => {
+            layer.on('click', e => {
+              L.popup({ closeButton:true, offset:[0,-2] })
+                .setLatLng(e.latlng)
+                .setContent(popupContent(
+                  feature.properties.route_id,
+                  tier,
+                  feature.properties.high_need_count
+                ))
+                .openOn(map);
+              L.DomEvent.stopPropagation(e);
+            });
+            // Cursor feedback on hover
+            layer.on('mouseover', () => { map.getContainer().style.cursor = 'pointer'; });
+            layer.on('mouseout',  () => { map.getContainer().style.cursor = ''; });
+          }
+        });
+
+        return { visual, hit };
       }
 
-      routeLayer.priority = L.geoJSON(priorityFeatures, {
-        pane: 'routePane',
-        style: { color: '#facc15', weight: 3, opacity: 0.9 },
-        onEachFeature: makeHandler('priority')
-      });
+      const p = makeHandlers('priority',  priorityF);
+      const s = makeHandlers('secondary', secondaryF);
 
-      routeLayer.secondary = L.geoJSON(secondaryFeatures, {
-        pane: 'routePane',
-        style: { color: '#60a5fa', weight: 2, opacity: 0.8 },
-        onEachFeature: makeHandler('secondary')
-      });
+      routeVisualLayer.priority  = p.visual;
+      routeHitLayer.priority     = p.hit;
+      routeVisualLayer.secondary = s.visual;
+      routeHitLayer.secondary    = s.hit;
 
-      routeLayer.priority.addTo(map);
+      // Priority on by default
+      p.visual.addTo(map);
+      p.hit.addTo(map);
 
       document.getElementById('toggle-priority').addEventListener('change', e => {
-        e.target.checked ? routeLayer.priority.addTo(map) : map.removeLayer(routeLayer.priority);
+        if (e.target.checked) { routeVisualLayer.priority.addTo(map); routeHitLayer.priority.addTo(map); }
+        else { map.removeLayer(routeVisualLayer.priority); map.removeLayer(routeHitLayer.priority); }
       });
       document.getElementById('toggle-secondary').addEventListener('change', e => {
-        e.target.checked ? routeLayer.secondary.addTo(map) : map.removeLayer(routeLayer.secondary);
+        if (e.target.checked) { routeVisualLayer.secondary.addTo(map); routeHitLayer.secondary.addTo(map); }
+        else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
       });
 
     } catch(e) { console.warn('Could not load bus routes:', e); }
   }
 
   function lerpColor(a, b, t) {
-    const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
+    const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
     const ar=(ah>>16)&0xff, ag=(ah>>8)&0xff, ab=ah&0xff;
     const br=(bh>>16)&0xff, bg=(bh>>8)&0xff, bb=bh&0xff;
     const rr=Math.round(ar+(br-ar)*t), rg=Math.round(ag+(bg-ag)*t), rb=Math.round(ab+(bb-ab)*t);
     return '#'+((1<<24)+(rr<<16)+(rg<<8)+rb).toString(16).slice(1);
   }
 
-  const MIN_SCORE = 0.037, MAX_SCORE = 0.823;
+  const MIN_SCORE=0.037, MAX_SCORE=0.823;
 
   function getColor(score) {
-    if (score === null || score === undefined) return '#1e2033';
-    const stops = ['#22c55e','#eab308','#ef4444'];
-    const t = (score - MIN_SCORE) / (MAX_SCORE - MIN_SCORE);
-    const clamped = Math.max(0, Math.min(1, t)) * (stops.length - 1);
-    const i = Math.floor(clamped), f = clamped - i;
-    if (i >= stops.length - 1) return stops[stops.length - 1];
-    return lerpColor(stops[i], stops[i+1], f);
+    if (score===null||score===undefined) return '#1e2033';
+    const stops=['#22c55e','#eab308','#ef4444'];
+    const t=(score-MIN_SCORE)/(MAX_SCORE-MIN_SCORE);
+    const clamped=Math.max(0,Math.min(1,t))*(stops.length-1);
+    const i=Math.floor(clamped), f=clamped-i;
+    if (i>=stops.length-1) return stops[stops.length-1];
+    return lerpColor(stops[i],stops[i+1],f);
   }
 
   function getOpacity(score) {
-    if (score === null || score === undefined) return 0.25;
-    return 0.55 + score * 0.4;
+    if (score===null||score===undefined) return 0.25;
+    return 0.55+score*0.4;
   }
 
   function styleFeature(feature) {
-    const code = feature.properties.NTA2020 || feature.properties.NTACode || feature.properties.ntacode;
-    const score = scores[code] !== undefined ? scores[code] : null;
-    return {
-      fillColor: getColor(score),
-      fillOpacity: getOpacity(score),
-      color: '#ffffff',
-      weight: 0.5,
-      opacity: 0.25
-    };
+    const code=feature.properties.NTA2020||feature.properties.NTACode||feature.properties.ntacode;
+    const score=scores[code]!==undefined?scores[code]:null;
+    return { fillColor:getColor(score), fillOpacity:getOpacity(score), color:'#ffffff', weight:0.5, opacity:0.25 };
   }
 
   function onEachFeature(feature, layer) {
@@ -542,68 +339,51 @@
       mouseover: e => {
         e.target.setStyle({ weight:1.5, color:'#ffffff', opacity:0.7, fillOpacity:0.95 });
         e.target.bringToFront();
-        // Bring route pane back on top after bringToFront
-        if (map.getPane('routePane')) map.getPane('routePane').style.zIndex = 450;
-        const props = feature.properties;
-        const code = props.NTA2020 || props.NTACode || props.ntacode;
-        const name = props.NTAName || props.ntaname || 'Unknown';
+        const props=feature.properties;
+        const code=props.NTA2020||props.NTACode||props.ntacode;
+        const name=props.NTAName||props.ntaname||'Unknown';
         showTooltip(name, code, scores[code]);
       },
       mousemove: e => {
-        lastMousePos.x = e.originalEvent.clientX;
-        lastMousePos.y = e.originalEvent.clientY;
+        lastMousePos.x=e.originalEvent.clientX;
+        lastMousePos.y=e.originalEvent.clientY;
         if (floatingTooltip) positionTooltip();
       },
-      mouseout: e => {
-        geojsonLayer.resetStyle(e.target);
-        hideTooltip();
-      }
+      mouseout: e => { geojsonLayer.resetStyle(e.target); hideTooltip(); }
     });
   }
 
   function positionTooltip() {
     if (!floatingTooltip) return;
-    const x = lastMousePos.x + 14;
-    const y = lastMousePos.y - floatingTooltip.offsetHeight - 8;
-    floatingTooltip.style.left = x + 'px';
-    floatingTooltip.style.top  = Math.max(8, y) + 'px';
-    floatingTooltip.style.display = 'block';
+    const x=lastMousePos.x+14;
+    const y=lastMousePos.y-floatingTooltip.offsetHeight-8;
+    floatingTooltip.style.left=x+'px';
+    floatingTooltip.style.top=Math.max(8,y)+'px';
+    floatingTooltip.style.display='block';
   }
 
   function showTooltip(name, code, score) {
     if (!floatingTooltip) {
-      floatingTooltip = document.createElement('div');
-      floatingTooltip.className = 'floating-tooltip';
+      floatingTooltip=document.createElement('div');
+      floatingTooltip.className='floating-tooltip';
       document.body.appendChild(floatingTooltip);
     }
-
-    const comp = componentScores && componentScores[code];
-
-    if (score !== undefined && score !== null) {
-      const pct = Math.round(score * 100);
-      const componentHTML = comp ? `
+    const comp=componentScores&&componentScores[code];
+    if (score!==undefined&&score!==null) {
+      const pct=Math.round(score*100);
+      const componentHTML=comp?`
         <hr class="tooltip-divider">
         <div class="tooltip-score-label" style="margin-bottom:6px">Score Breakdown</div>
         <div class="tooltip-components">
-          ${[
-            ['Income',      comp.income],
-            ['Car',         comp.car],
-            ['Bus/Subway',  comp.bus_subway],
-            ['Reliability', comp.reliability],
-            ['Ridership',   comp.ridership]
-          ].map(([label, val]) => `
-            <div class="tooltip-component-row">
-              <span class="tooltip-component-name">${label}</span>
-              <div class="tooltip-component-bar-wrap">
-                <div class="tooltip-component-bar-fill" style="width:${Math.round(val*100)}%"></div>
-              </div>
-              <span class="tooltip-component-val">${val.toFixed(2)}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : '';
-
-      floatingTooltip.innerHTML = `
+          ${[['Income',comp.income],['Car',comp.car],['Bus/Subway',comp.bus_subway],['Reliability',comp.reliability],['Ridership',comp.ridership]]
+            .map(([l,v])=>`<div class="tooltip-component-row">
+              <span class="tooltip-component-name">${l}</span>
+              <div class="tooltip-component-bar-wrap"><div class="tooltip-component-bar-fill" style="width:${Math.round(v*100)}%"></div></div>
+              <span class="tooltip-component-val">${v.toFixed(2)}</span>
+            </div>`).join('')}
+        </div>`:''
+      ;
+      floatingTooltip.innerHTML=`
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
         <div class="tooltip-score-label">Need Score</div>
@@ -612,25 +392,22 @@
         ${componentHTML}
       `;
     } else {
-      floatingTooltip.innerHTML = `
+      floatingTooltip.innerHTML=`
         <div class="tooltip-name">${name}</div>
         <div class="tooltip-code">${code}</div>
         <div class="tooltip-empty" style="margin-top:8px">No data for this NTA<br>(park, airport, or cemetery)</div>
       `;
     }
-
     positionTooltip();
   }
 
-  function hideTooltip() {
-    if (floatingTooltip) floatingTooltip.style.display = 'none';
-  }
+  function hideTooltip() { if (floatingTooltip) floatingTooltip.style.display='none'; }
 
   function updateStats() {
-    const vals = Object.values(scores).filter(v => v !== null && v !== undefined);
+    const vals=Object.values(scores).filter(v=>v!==null&&v!==undefined);
     if (!vals.length) return;
-    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
-    document.getElementById('stats-panel').innerHTML = `
+    const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    document.getElementById('stats-panel').innerHTML=`
       <div class="panel-label">Statistics</div>
       <div class="stat-row"><span class="stat-label">NTAs scored</span><span class="stat-val">${vals.length}</span></div>
       <div class="stat-row"><span class="stat-label">Mean score</span><span class="stat-val">${avg.toFixed(3)}</span></div>
@@ -642,138 +419,116 @@
 
   function updateTopList() {
     if (!ntaData) return;
-    const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    const nameMap = {};
-    ntaData.features.forEach(f => {
-      const code = f.properties.NTA2020 || f.properties.NTACode || f.properties.ntacode;
-      nameMap[code] = f.properties.NTAName || f.properties.ntaname || code;
+    const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const nameMap={};
+    ntaData.features.forEach(f=>{
+      const code=f.properties.NTA2020||f.properties.NTACode||f.properties.ntacode;
+      nameMap[code]=f.properties.NTAName||f.properties.ntaname||code;
     });
-    document.getElementById('top-panel').innerHTML = `
+    document.getElementById('top-panel').innerHTML=`
       <div class="panel-label">Top 10 Highest Need</div>
       <ul class="top-list">
-        ${sorted.map(([code, score], i) => `
+        ${sorted.map(([code,score],i)=>`
           <li>
             <span class="rank">${i+1}</span>
             <span class="nta-name">${nameMap[code]||code}</span>
             <span class="nta-score">${score.toFixed(2)}</span>
-          </li>
-        `).join('')}
+          </li>`).join('')}
       </ul>
     `;
   }
 
   function recalculateScores() {
     if (!componentScores) return;
-    scores = {};
-    for (const [code, c] of Object.entries(componentScores)) {
+    scores={};
+    for (const [code,c] of Object.entries(componentScores)) {
       if (nullNTAs.has(code)) continue;
-      scores[code] = (
-        currentWeights.income      * c.income      +
-        currentWeights.car         * c.car         +
-        currentWeights.bus_subway  * c.bus_subway  +
-        currentWeights.reliability * c.reliability +
-        currentWeights.ridership   * c.ridership
+      scores[code]=(
+        currentWeights.income*c.income+currentWeights.car*c.car+
+        currentWeights.bus_subway*c.bus_subway+currentWeights.reliability*c.reliability+
+        currentWeights.ridership*c.ridership
       );
     }
-    if (geojsonLayer) geojsonLayer.eachLayer(l => l.setStyle(styleFeature(l.feature)));
+    if (geojsonLayer) geojsonLayer.eachLayer(l=>l.setStyle(styleFeature(l.feature)));
     updateStats();
     updateTopList();
   }
 
   function updateWeightSum() {
-    const inputs = document.querySelectorAll('.weight-input-field');
-    let sum = 0;
-    inputs.forEach(i => { sum += parseFloat(i.value)||0; });
-    document.getElementById('weight-sum-display').textContent = `Sum: ${sum.toFixed(2)}`;
+    const inputs=document.querySelectorAll('.weight-input-field');
+    let sum=0;
+    inputs.forEach(i=>{sum+=parseFloat(i.value)||0;});
+    document.getElementById('weight-sum-display').textContent=`Sum: ${sum.toFixed(2)}`;
     return sum;
   }
 
   function setupWeightSliders() {
-    const rangeSliders = document.querySelectorAll('.weight-slider-input');
-    const numberInputs = document.querySelectorAll('.weight-input-field');
-    const errorMsg     = document.getElementById('weight-error');
-
-    document.getElementById('adjust-weights-toggle').addEventListener('click', () => {
+    const rangeSliders=document.querySelectorAll('.weight-slider-input');
+    const numberInputs=document.querySelectorAll('.weight-input-field');
+    const errorMsg=document.getElementById('weight-error');
+    document.getElementById('adjust-weights-toggle').addEventListener('click',()=>{
       document.getElementById('weight-adjustor').classList.toggle('active');
       document.getElementById('adjust-weights-toggle').classList.toggle('active');
     });
-
-    rangeSliders.forEach(slider => {
-      slider.addEventListener('input', e => {
-        const w = e.target.dataset.weight;
-        document.querySelector(`.weight-input-field[data-weight="${w}"]`).value = parseFloat(e.target.value).toFixed(2);
+    rangeSliders.forEach(slider=>{
+      slider.addEventListener('input',e=>{
+        const w=e.target.dataset.weight;
+        document.querySelector(`.weight-input-field[data-weight="${w}"]`).value=parseFloat(e.target.value).toFixed(2);
         updateWeightSum();
       });
     });
-
-    numberInputs.forEach(input => {
-      input.addEventListener('input', e => {
-        const w = e.target.dataset.weight;
-        const v = Math.max(0, Math.min(1, parseFloat(e.target.value)||0));
-        document.querySelector(`.weight-slider-input[data-weight="${w}"]`).value = v;
+    numberInputs.forEach(input=>{
+      input.addEventListener('input',e=>{
+        const w=e.target.dataset.weight;
+        const v=Math.max(0,Math.min(1,parseFloat(e.target.value)||0));
+        document.querySelector(`.weight-slider-input[data-weight="${w}"]`).value=v;
         updateWeightSum();
       });
-      input.addEventListener('blur', e => {
-        e.target.value = (Math.max(0, Math.min(1, parseFloat(e.target.value)||0))).toFixed(2);
-      });
+      input.addEventListener('blur',e=>{e.target.value=(Math.max(0,Math.min(1,parseFloat(e.target.value)||0))).toFixed(2);});
     });
-
-    document.getElementById('apply-weights').addEventListener('click', () => {
-      const sum = updateWeightSum();
-      if (Math.abs(sum - 1.0) > 0.01) {
-        errorMsg.textContent = `Weights must sum to 1.00 (currently ${sum.toFixed(2)})`;
-        errorMsg.classList.add('show');
-        return;
-      }
+    document.getElementById('apply-weights').addEventListener('click',()=>{
+      const sum=updateWeightSum();
+      if (Math.abs(sum-1.0)>0.01){errorMsg.textContent=`Weights must sum to 1.00 (currently ${sum.toFixed(2)})`;errorMsg.classList.add('show');return;}
       errorMsg.classList.remove('show');
-      numberInputs.forEach(i => { currentWeights[i.dataset.weight] = parseFloat(i.value); });
+      numberInputs.forEach(i=>{currentWeights[i.dataset.weight]=parseFloat(i.value);});
       recalculateScores();
     });
-
-    document.getElementById('reset-weights').addEventListener('click', () => {
-      currentWeights = { ...DEFAULT_WEIGHTS };
-      rangeSliders.forEach(s => { s.value = DEFAULT_WEIGHTS[s.dataset.weight]; });
-      numberInputs.forEach(i => { i.value = DEFAULT_WEIGHTS[i.dataset.weight].toFixed(2); });
+    document.getElementById('reset-weights').addEventListener('click',()=>{
+      currentWeights={...DEFAULT_WEIGHTS};
+      rangeSliders.forEach(s=>{s.value=DEFAULT_WEIGHTS[s.dataset.weight];});
+      numberInputs.forEach(i=>{i.value=DEFAULT_WEIGHTS[i.dataset.weight].toFixed(2);});
       updateWeightSum();
       errorMsg.classList.remove('show');
       recalculateScores();
     });
-
     updateWeightSum();
   }
 
   async function initMap() {
     await loadScores();
     await loadComponentScores();
-
-    map = L.map('map', { center:[40.7128,-73.9], zoom:11, zoomControl:true, attributionControl:false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains:'abcd', maxZoom:19 }).addTo(map);
-
+    map=L.map('map',{center:[40.7128,-73.9],zoom:11,zoomControl:true,attributionControl:false});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
     try {
-      const res = await fetch(NTA_GEOJSON_URL);
+      const res=await fetch(NTA_GEOJSON_URL);
       if (!res.ok) throw new Error();
-      ntaData = await res.json();
-
-      geojsonLayer = L.geoJSON(ntaData, { style: styleFeature, onEachFeature }).addTo(map);
+      ntaData=await res.json();
+      geojsonLayer=L.geoJSON(ntaData,{style:styleFeature,onEachFeature}).addTo(map);
       map.fitBounds(geojsonLayer.getBounds());
-
       await loadRoutes();
-
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('data-status').textContent = `${Object.keys(scores).length} NTAs scored`;
-      document.getElementById('data-status').className = 'status-badge loaded';
+      document.getElementById('loading').style.display='none';
+      document.getElementById('data-status').textContent=`${Object.keys(scores).length} NTAs scored`;
+      document.getElementById('data-status').className='status-badge loaded';
       updateStats();
       updateTopList();
       setupWeightSliders();
-
     } catch(e) {
-      document.getElementById('loading').innerHTML = `
+      document.getElementById('loading').innerHTML=`
         <div style="text-align:center;padding:32px;max-width:400px">
           <div style="font-size:24px;margin-bottom:12px">⚠️</div>
           <div class="loading-text" style="color:#ef4444;margin-bottom:8px">Could not load NTA boundaries</div>
           <div class="loading-text" style="font-size:10px;line-height:1.8">Make sure nynta2020.geojson is in the same folder.</div>
-        </div>
-      `;
+        </div>`;
     }
   }
 
