@@ -117,33 +117,20 @@
       user-select: none;
     }
     .route-toggle-item input[type="checkbox"] { display: none; }
-    .route-toggle-swatch {
-      width: 28px;
-      height: 4px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
+    .route-toggle-swatch { width: 28px; height: 4px; border-radius: 2px; flex-shrink: 0; }
     .route-toggle-box {
-      width: 14px;
-      height: 14px;
+      width: 14px; height: 14px;
       border: 1px solid var(--border);
-      border-radius: 2px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: 2px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
       transition: background 0.15s;
     }
     .route-toggle-item input:checked + .route-toggle-box { background: var(--accent); border-color: var(--accent); }
     .route-toggle-item input:checked + .route-toggle-box::after { content: '✓'; font-size: 9px; color: #fff; }
     .route-toggle-desc { color: var(--muted); font-size: 9px; margin-top: 2px; }
+    .route-click-hint { font-size: 9px; color: var(--muted); margin-top: 8px; font-style: italic; }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 8px;
-    }
+    .stat-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
     .stat-label { font-size: 11px; color: var(--muted); }
     .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
 
@@ -164,19 +151,15 @@
     .tooltip-code { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 10px; }
     .tooltip-score-label {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2px;
+      font-size: 9px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
     }
     .tooltip-score-val { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600; }
     .tooltip-bar-wrap { margin-top: 8px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .tooltip-bar-fill {
       height: 100%;
       background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
-      border-radius: 2px;
-      transition: width 0.3s;
+      border-radius: 2px; transition: width 0.3s;
     }
     .tooltip-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
     .tooltip-components { display: flex; flex-direction: column; gap: 5px; }
@@ -187,14 +170,27 @@
     .tooltip-component-val { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); width: 32px; text-align: right; }
     .tooltip-empty { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
+    /* Style the Leaflet popup to match dark theme */
+    .leaflet-popup-content-wrapper {
+      background: var(--panel) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 4px !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+      color: var(--text) !important;
+      font-family: 'IBM Plex Mono', monospace !important;
+      font-size: 11px !important;
+    }
+    .leaflet-popup-tip { background: var(--panel) !important; }
+    .leaflet-popup-close-button { color: var(--muted) !important; }
+    .route-popup-id { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .route-popup-tier { font-size: 10px; color: var(--muted); }
+    .route-popup-priority { color: #facc15; }
+    .route-popup-secondary { color: #60a5fa; }
+
     .top-list { list-style: none; }
     .top-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 10px;
     }
     .top-list li:last-child { border-bottom: none; }
     .top-list .rank { font-family: 'IBM Plex Mono', monospace; color: var(--muted); width: 16px; }
@@ -202,24 +198,14 @@
     .top-list .nta-score { font-family: 'IBM Plex Mono', monospace; color: var(--text); font-weight: 600; }
 
     .weight-adjustor {
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      background: rgba(59,130,246,0.1);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 16px;
+      display: none; flex-direction: column; gap: 12px;
+      padding: 16px; background: rgba(59,130,246,0.1);
+      border: 1px solid var(--border); border-radius: 4px; margin-bottom: 16px;
     }
     .weight-adjustor.active { display: flex; }
     .weight-adjustor-title {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
     }
     .weight-slider-group { display: flex; flex-direction: column; gap: 8px; }
     .weight-slider-item { display: flex; flex-direction: column; gap: 4px; }
@@ -348,6 +334,7 @@
           </div>
         </label>
       </div>
+      <div class="route-click-hint">Click a route line to see its ID</div>
     </div>
 
     <div class="panel-section">
@@ -430,7 +417,7 @@
   let floatingTooltip = null;
   let lastMousePos = { x:0, y:0 };
 
-  // Load scores CSV
+  // ── LOAD SCORES CSV ────────────────────────────────────────────
   async function loadScores() {
     try {
       const res = await fetch(SCORES_CSV_URL);
@@ -443,15 +430,12 @@
     } catch(e) { console.error('Failed to load scores:', e); }
   }
 
-  // Load component scores JSON
+  // ── LOAD COMPONENT SCORES ──────────────────────────────────────
   async function loadComponentScores() {
     try {
       const res = await fetch(COMPONENT_SCORES_URL);
       if (!res.ok) return;
       componentScores = await res.json();
-
-      // Mark NTAs where all components are 0 — these are parks/airports/etc
-      // They have no real data and should not be colored when weights change
       for (const [code, c] of Object.entries(componentScores)) {
         const total = c.income + c.car + c.bus_subway + c.reliability + c.ridership;
         if (total === 0) nullNTAs.add(code);
@@ -459,7 +443,7 @@
     } catch(e) { console.warn('Could not load component scores:', e); }
   }
 
-  // Load bus routes GeoJSON
+  // ── LOAD BUS ROUTES ────────────────────────────────────────────
   async function loadRoutes() {
     try {
       const res = await fetch(ROUTES_GEOJSON_URL);
@@ -469,21 +453,34 @@
       const priorityFeatures  = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier === 'priority') };
       const secondaryFeatures = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier === 'secondary') };
 
+      // ── FIX: use click instead of hover tooltip so it works over NTAs ──
+      function makeRouteHandler(tier) {
+        return (feature, layer) => {
+          layer.on('click', e => {
+            const tierLabel = tier === 'priority' ? 'Priority' : 'Secondary';
+            const tierClass = tier === 'priority' ? 'route-popup-priority' : 'route-popup-secondary';
+            L.popup({ className: 'route-popup' })
+              .setLatLng(e.latlng)
+              .setContent(`
+                <div class="route-popup-id ${tierClass}">${feature.properties.route_id}</div>
+                <div class="route-popup-tier">${tierLabel} route · serves ${feature.properties.high_need_count} high-need NTA${feature.properties.high_need_count !== 1 ? 's' : ''}</div>
+              `)
+              .openOn(map);
+            L.DomEvent.stopPropagation(e);
+          });
+        };
+      }
+
       routeLayer.priority = L.geoJSON(priorityFeatures, {
-        style: { color: '#facc15', weight: 2, opacity: 0.85 },
-        onEachFeature: (feature, layer) => {
-          layer.bindTooltip(`<b>${feature.properties.route_id}</b><br>Priority route`, { sticky: true, className: 'leaflet-tooltip-dark' });
-        }
+        style: { color: '#facc15', weight: 2.5, opacity: 0.9 },
+        onEachFeature: makeRouteHandler('priority')
       });
 
       routeLayer.secondary = L.geoJSON(secondaryFeatures, {
-        style: { color: '#60a5fa', weight: 1.5, opacity: 0.7 },
-        onEachFeature: (feature, layer) => {
-          layer.bindTooltip(`<b>${feature.properties.route_id}</b><br>Secondary route`, { sticky: true, className: 'leaflet-tooltip-dark' });
-        }
+        style: { color: '#60a5fa', weight: 1.8, opacity: 0.75 },
+        onEachFeature: makeRouteHandler('secondary')
       });
 
-      // Priority on by default
       routeLayer.priority.addTo(map);
 
       document.getElementById('toggle-priority').addEventListener('change', e => {
@@ -496,7 +493,7 @@
     } catch(e) { console.warn('Could not load bus routes:', e); }
   }
 
-  // Color helpers
+  // ── COLOR HELPERS ──────────────────────────────────────────────
   function lerpColor(a, b, t) {
     const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
     const ar=(ah>>16)&0xff, ag=(ah>>8)&0xff, ab=ah&0xff;
@@ -522,7 +519,7 @@
     return 0.55 + score * 0.4;
   }
 
-  // Map styling
+  // ── MAP STYLING ────────────────────────────────────────────────
   function styleFeature(feature) {
     const code = feature.properties.NTA2020 || feature.properties.NTACode || feature.properties.ntacode;
     const score = scores[code] !== undefined ? scores[code] : null;
@@ -535,7 +532,7 @@
     };
   }
 
-  // Tooltip
+  // ── NTA HOVER TOOLTIP ──────────────────────────────────────────
   function onEachFeature(feature, layer) {
     layer.on({
       mouseover: e => {
@@ -623,7 +620,7 @@
     if (floatingTooltip) floatingTooltip.style.display = 'none';
   }
 
-  // Stats & Top List
+  // ── STATS & TOP LIST ───────────────────────────────────────────
   function updateStats() {
     const vals = Object.values(scores).filter(v => v !== null && v !== undefined);
     if (!vals.length) return;
@@ -660,12 +657,11 @@
     `;
   }
 
-  // Weight recalculation
+  // ── WEIGHT RECALCULATION ───────────────────────────────────────
   function recalculateScores() {
     if (!componentScores) return;
     scores = {};
     for (const [code, c] of Object.entries(componentScores)) {
-      // FIX: skip NTAs with no real data (parks/airports/cemeteries)
       if (nullNTAs.has(code)) continue;
       scores[code] = (
         currentWeights.income      * c.income      +
@@ -680,7 +676,7 @@
     updateTopList();
   }
 
-  // Weight sliders
+  // ── WEIGHT SLIDERS ─────────────────────────────────────────────
   function updateWeightSum() {
     const inputs = document.querySelectorAll('.weight-input-field');
     let sum = 0;
@@ -743,7 +739,7 @@
     updateWeightSum();
   }
 
-  // Initialize map and load all data
+  // ── INIT ───────────────────────────────────────────────────────
   async function initMap() {
     await loadScores();
     await loadComponentScores();
@@ -759,7 +755,6 @@
       geojsonLayer = L.geoJSON(ntaData, { style: styleFeature, onEachFeature }).addTo(map);
       map.fitBounds(geojsonLayer.getBounds());
 
-      // Load routes after map is ready
       await loadRoutes();
 
       document.getElementById('loading').style.display = 'none';
