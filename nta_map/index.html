@@ -316,11 +316,10 @@
   function recalculateRoutes() {
     if (!window._allRouteFeatures.length) return;
 
-    // Get current top 20 NTAs by score
-    const top20 = new Set(
+    // Get current high-need NTAs by score threshold
+    const highNeedNTAs = new Set(
       Object.entries(scores)
-        .sort((a,b) => b[1] - a[1])
-        .slice(0, 20)
+        .filter(([_, s]) => s >= 0.5)
         .map(([code]) => code)
     );
 
@@ -338,7 +337,7 @@
 
     window._allRouteFeatures.forEach(feature => {
       const ntaList = feature.properties.nta_list || [];
-      const count = ntaList.filter(code => top20.has(code)).length;
+      const count = ntaList.filter(code => highNeedNTAs.has(code)).length;
       if (count >= 3) {
         feature.properties.tier = 'priority';
         feature.properties.high_need_count = count;
