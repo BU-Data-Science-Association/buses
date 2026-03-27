@@ -95,6 +95,8 @@
     .loading-text { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); letter-spacing:.1em; }
     .spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
+    #threshold-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:var(--accent); cursor:pointer; }
+    #threshold-slider::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:var(--accent); cursor:pointer; border:none; }
   </style>
 </head>
 <body>
@@ -128,7 +130,7 @@
               <div class="route-toggle-swatch" style="background:var(--priority)"></div>
               <span>Priority routes</span>
             </div>
-            <div class="route-toggle-desc">Serve 3+ high-need NTAs (scores > 0.8)</div>
+            <div class="route-toggle-desc">Serve 3+ high-need NTAs</div>
           </div>
         </label>
         <label class="route-toggle-item">
@@ -139,9 +141,16 @@
               <div class="route-toggle-swatch" style="background:var(--secondary)"></div>
               <span>Secondary routes</span>
             </div>
-            <div class="route-toggle-desc">Serve 1–2 high-need NTAs (scores > 0.8)</div>
+            <div class="route-toggle-desc">Serve 1–2 high-need NTAs</div>
           </div>
         </label>
+      </div>
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:10px;color:var(--muted)">High-need threshold</span>
+          <span id="threshold-value" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);font-weight:600">0.80</span>
+        </div>
+        <input type="range" id="threshold-slider" min="0" max="1" step="0.01" value="0.80" style="width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer">
       </div>
       <div class="route-click-hint">Click a route line to see its ID</div>
     </div>
@@ -231,7 +240,6 @@
   }
 
   function makeHandlers(tier, featureCollection) {
-    // Visual layer — just color, no pointer events
     const visual = L.geoJSON(featureCollection, {
       pane: 'routeVisual',
       interactive: false,
@@ -240,7 +248,6 @@
         : { color:'#60a5fa', weight:2, opacity:0.8 }
     });
 
-    // Hit layer — wide transparent line, handles all clicks
     const hit = L.geoJSON(featureCollection, {
       pane: 'routeHit',
       style: { color:'transparent', weight:14, opacity:0 },
@@ -264,47 +271,56 @@
     return { visual, hit };
   }
 
-  // ── Load routes (initial classification from GeoJSON properties) ──
+  // ── Load routes ──
 
   async function loadRoutes() {
-  try {
-    const res = await fetch(ROUTES_GEOJSON_URL);
-    if (!res.ok) return;
-    const data = await res.json();
+    try {
+      const res = await fetch(ROUTES_GEOJSON_URL);
+      if (!res.ok) return;
+      const data = await res.json();
 
-    window._allRouteFeatures = data.features;
+      window._allRouteFeatures = data.features;
 
-    map.createPane('routeVisual');
-    map.getPane('routeVisual').style.zIndex = 450;
-    map.getPane('routeVisual').style.pointerEvents = 'none';
+      map.createPane('routeVisual');
+      map.getPane('routeVisual').style.zIndex = 450;
+      map.getPane('routeVisual').style.pointerEvents = 'none';
 
-    map.createPane('routeHit');
-    map.getPane('routeHit').style.zIndex = 460;
-    map.getPane('routeHit').style.pointerEvents = 'auto';
+      map.createPane('routeHit');
+      map.getPane('routeHit').style.zIndex = 460;
+      map.getPane('routeHit').style.pointerEvents = 'auto';
 
-    // Classify dynamically based on current scores
-    recalculateRoutes();
+      // Classify dynamically based on current scores
+      recalculateRoutes();
 
-    document.getElementById('toggle-priority').addEventListener('change', e => {
-      if (e.target.checked) { routeVisualLayer.priority.addTo(map); routeHitLayer.priority.addTo(map); }
-      else { map.removeLayer(routeVisualLayer.priority); map.removeLayer(routeHitLayer.priority); }
-    });
-    document.getElementById('toggle-secondary').addEventListener('change', e => {
-      if (e.target.checked) { routeVisualLayer.secondary.addTo(map); routeHitLayer.secondary.addTo(map); }
-      else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
-    });
+      document.getElementById('toggle-priority').addEventListener('change', e => {
+        if (e.target.checked) { routeVisualLayer.priority.addTo(map); routeHitLayer.priority.addTo(map); }
+        else { map.removeLayer(routeVisualLayer.priority); map.removeLayer(routeHitLayer.priority); }
+      });
+      document.getElementById('toggle-secondary').addEventListener('change', e => {
+        if (e.target.checked) { routeVisualLayer.secondary.addTo(map); routeHitLayer.secondary.addTo(map); }
+        else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
+      });
 
-  } catch(e) { console.warn('Could not load bus routes:', e); }
-}
-  // ── Reclassify routes when scores change (weight adjustment) ──
+      // Threshold slider — updates routes in real time
+      document.getElementById('threshold-slider').addEventListener('input', e => {
+        document.getElementById('threshold-value').textContent = parseFloat(e.target.value).toFixed(2);
+        recalculateRoutes();
+      });
+
+    } catch(e) { console.warn('Could not load bus routes:', e); }
+  }
+
+  // ── Reclassify routes when scores or threshold change ──
 
   function recalculateRoutes() {
     if (!window._allRouteFeatures.length) return;
 
-    // Get current high-need NTAs by score threshold
+    // Read current threshold from slider
+    const threshold = parseFloat(document.getElementById('threshold-slider').value);
+
     const highNeedNTAs = new Set(
       Object.entries(scores)
-        .filter(([_, s]) => s >= 0.8)
+        .filter(([_, s]) => s >= threshold)
         .map(([code]) => code)
     );
 
@@ -316,7 +332,7 @@
       if (layer) map.removeLayer(layer);
     });
 
-    // Refilter the loaded GeoJSON data by new tier
+    // Refilter by new tier
     const priorityFeatures  = { type:'FeatureCollection', features: [] };
     const secondaryFeatures = { type:'FeatureCollection', features: [] };
 
@@ -424,7 +440,7 @@
         <hr class="tooltip-divider">
         <div class="tooltip-score-label" style="margin-bottom:6px">Score Breakdown</div>
         <div class="tooltip-components">
-          ${[['Income',comp.income],['Car',comp.car],['Bus/Subway',comp.bus_subway],['Reliability',comp.reliability],['Ridership',comp.ridership]]
+          ${[['Income',comp.income * currentWeights.income],['Car',comp.car * currentWeights.car],['Bus/Subway',comp.bus_subway * currentWeights.bus_subway],['Reliability',comp.reliability * currentWeights.reliability],['Ridership',comp.ridership * currentWeights.ridership]]
             .map(([l,v])=>`<div class="tooltip-component-row">
               <span class="tooltip-component-name">${l}</span>
               <div class="tooltip-component-bar-wrap"><div class="tooltip-component-bar-fill" style="width:${Math.round(v*100)}%"></div></div>
@@ -572,7 +588,7 @@
       if (!res.ok) throw new Error();
       ntaData=await res.json();
       geojsonLayer=L.geoJSON(ntaData,{style:styleFeature,onEachFeature}).addTo(map);
-      map.fitBounds(geojsonLayer.getBounds());
+      map.fitBounds(geojsonLayer.getBounds(), { maxZoom:11.5 });
       await loadRoutes();
       document.getElementById('loading').style.display='none';
       document.getElementById('data-status').textContent=`${Object.keys(scores).length} NTAs scored`;
