@@ -146,11 +146,14 @@
         </label>
       </div>
       <div style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
           <span style="font-size:10px;color:var(--muted)">High-need threshold</span>
-          <span id="threshold-value" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);font-weight:600">0.80</span>
+          <span id="threshold-pct" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);font-weight:600">Top 20%</span>
         </div>
-        <input type="range" id="threshold-slider" min="0" max="1" step="0.01" value="0.80" style="width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer">
+        <input type="range" id="threshold-slider" min="1" max="100" step="1" value="20" style="width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px">
+          <span id="threshold-detail" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)"></span>
+        </div>
       </div>
       <div class="route-click-hint">Click a route line to see its ID</div>
     </div>
@@ -200,7 +203,6 @@
   let floatingTooltip = null;
   let lastMousePos = { x:0, y:0 };
 
-  // Store all route features for reclassification when weights change
   window._allRouteFeatures = [];
 
   async function loadScores() {
@@ -227,7 +229,7 @@
     } catch(e) { console.warn('Could not load component scores:', e); }
   }
 
-  // ── Top-level helpers used by both loadRoutes and recalculateRoutes ──
+  // ── Top-level helpers ──
 
   function popupContent(routeId, tier, count) {
     const color = tier === 'priority' ? '#facc15' : '#60a5fa';
@@ -271,6 +273,18 @@
     return { visual, hit };
   }
 
+  // ── Percentile threshold helper ──
+
+  function getPercentileCutoff(pct) {
+    const sorted = Object.values(scores)
+      .filter(v => v !== null && v !== undefined)
+      .sort((a, b) => a - b);
+    if (!sorted.length) return 0;
+    // pct = "top X%", so cutoff is at the (100 - pct)th percentile
+    const idx = Math.floor(sorted.length * (1 - pct / 100));
+    return sorted[Math.min(idx, sorted.length - 1)];
+  }
+
   // ── Load routes ──
 
   async function loadRoutes() {
@@ -289,7 +303,6 @@
       map.getPane('routeHit').style.zIndex = 460;
       map.getPane('routeHit').style.pointerEvents = 'auto';
 
-      // Classify dynamically based on current scores
       recalculateRoutes();
 
       document.getElementById('toggle-priority').addEventListener('change', e => {
@@ -301,30 +314,33 @@
         else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
       });
 
-      // Threshold slider — updates routes in real time
       document.getElementById('threshold-slider').addEventListener('input', e => {
-        document.getElementById('threshold-value').textContent = parseFloat(e.target.value).toFixed(2);
+        const pct = parseInt(e.target.value);
+        document.getElementById('threshold-pct').textContent = `Top ${pct}%`;
         recalculateRoutes();
       });
 
     } catch(e) { console.warn('Could not load bus routes:', e); }
   }
 
-  // ── Reclassify routes when scores or threshold change ──
+  // ── Reclassify routes ──
 
   function recalculateRoutes() {
     if (!window._allRouteFeatures.length) return;
 
-    // Read current threshold from slider
-    const threshold = parseFloat(document.getElementById('threshold-slider').value);
+    const pct = parseInt(document.getElementById('threshold-slider').value);
+    const cutoff = getPercentileCutoff(pct);
+
+    // Update detail label
+    const numAbove = Object.values(scores).filter(v => v >= cutoff).length;
+    document.getElementById('threshold-detail').textContent = `${numAbove} NTAs \u2265 ${cutoff.toFixed(3)}`;
 
     const highNeedNTAs = new Set(
       Object.entries(scores)
-        .filter(([_, s]) => s >= threshold)
+        .filter(([_, s]) => s >= cutoff)
         .map(([code]) => code)
     );
 
-    // Remove all existing route layers from the map
     [routeVisualLayer.priority, routeVisualLayer.secondary].forEach(layer => {
       if (layer) map.removeLayer(layer);
     });
@@ -332,7 +348,6 @@
       if (layer) map.removeLayer(layer);
     });
 
-    // Refilter by new tier
     const priorityFeatures  = { type:'FeatureCollection', features: [] };
     const secondaryFeatures = { type:'FeatureCollection', features: [] };
 
@@ -350,7 +365,6 @@
       }
     });
 
-    // Rebuild layers with new classification
     const p = makeHandlers('priority',  priorityFeatures);
     const s = makeHandlers('secondary', secondaryFeatures);
 
@@ -359,7 +373,6 @@
     routeVisualLayer.secondary = s.visual;
     routeHitLayer.secondary    = s.hit;
 
-    // Re-add based on current toggle state
     if (document.getElementById('toggle-priority').checked)  { p.visual.addTo(map); p.hit.addTo(map); }
     if (document.getElementById('toggle-secondary').checked) { s.visual.addTo(map); s.hit.addTo(map); }
   }
@@ -440,7 +453,7 @@
         <hr class="tooltip-divider">
         <div class="tooltip-score-label" style="margin-bottom:6px">Score Breakdown</div>
         <div class="tooltip-components">
-           ${[['Income',comp.income],['Car',comp.car],['Bus/Subway',comp.bus_subway],['Reliability',comp.reliability],['Ridership',comp.ridership]]
+          ${[['Income',comp.income * currentWeights.income],['Car',comp.car * currentWeights.car],['Bus/Subway',comp.bus_subway * currentWeights.bus_subway],['Reliability',comp.reliability * currentWeights.reliability],['Ridership',comp.ridership * currentWeights.ridership]]
             .map(([l,v])=>`<div class="tooltip-component-row">
               <span class="tooltip-component-name">${l}</span>
               <div class="tooltip-component-bar-wrap"><div class="tooltip-component-bar-fill" style="width:${Math.round(v*100)}%"></div></div>
@@ -480,7 +493,7 @@
       <div class="stat-row"><span class="stat-label">Mean score</span><span class="stat-val">${avg.toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Max score</span><span class="stat-val">${Math.max(...vals).toFixed(3)}</span></div>
       <div class="stat-row"><span class="stat-label">Min score</span><span class="stat-val">${Math.min(...vals).toFixed(3)}</span></div>
-      <div class="stat-row"><span class="stat-label">High need (≥0.75)</span><span class="stat-val" style="color:#ef4444">${vals.filter(v=>v>=0.75).length}</span></div>
+      <div class="stat-row"><span class="stat-label">High need (\u22650.75)</span><span class="stat-val" style="color:#ef4444">${vals.filter(v=>v>=0.75).length}</span></div>
     `;
   }
 
@@ -599,7 +612,7 @@
     } catch(e) {
       document.getElementById('loading').innerHTML=`
         <div style="text-align:center;padding:32px;max-width:400px">
-          <div style="font-size:24px;margin-bottom:12px">⚠️</div>
+          <div style="font-size:24px;margin-bottom:12px">\u26a0\ufe0f</div>
           <div class="loading-text" style="color:#ef4444;margin-bottom:8px">Could not load NTA boundaries</div>
           <div class="loading-text" style="font-size:10px;line-height:1.8">Make sure nynta2020.geojson is in the same folder.</div>
         </div>`;
