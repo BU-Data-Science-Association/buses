@@ -317,9 +317,10 @@
     if (!window._allRouteFeatures.length) return;
 
     // Get current high-need NTAs by score threshold
-    const highNeedNTAs = new Set(
+    const top40 = new Set(
       Object.entries(scores)
-        .filter(([_, s]) => s >= 0.8)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 40)
         .map(([code]) => code)
     );
 
@@ -337,7 +338,7 @@
 
     window._allRouteFeatures.forEach(feature => {
       const ntaList = feature.properties.nta_list || [];
-      const count = ntaList.filter(code => highNeedNTAs.has(code)).length;
+      const count = ntaList.filter(code => top40.has(code)).length;
       if (count >= 3) {
         feature.properties.tier = 'priority';
         feature.properties.high_need_count = count;
