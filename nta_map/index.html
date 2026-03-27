@@ -55,7 +55,6 @@
     .tooltip-component-bar-fill { height:100%; background:#3b82f6; border-radius:2px; }
     .tooltip-component-val { font-family:'IBM Plex Mono',monospace; font-size:9px; color:#e2e8f0; width:32px; text-align:right; }
     .tooltip-empty { font-size:11px; color:#64748b; line-height:1.6; }
-    /* Dark Leaflet popup */
     .leaflet-popup-content-wrapper { background:#13161e !important; border:1px solid #1f2535 !important; border-radius:4px !important; box-shadow:0 4px 16px rgba(0,0,0,.6) !important; padding:0 !important; }
     .leaflet-popup-content { margin:12px 14px !important; color:#e2e8f0 !important; font-family:'IBM Plex Mono',monospace !important; }
     .leaflet-popup-tip-container { display:none; }
@@ -192,6 +191,9 @@
   let floatingTooltip = null;
   let lastMousePos = { x:0, y:0 };
 
+  // Store all route features for reclassification when weights change
+  window._allRouteFeatures = [];
+
   async function loadScores() {
     try {
       const res = await fetch(SCORES_CSV_URL);
@@ -216,16 +218,67 @@
     } catch(e) { console.warn('Could not load component scores:', e); }
   }
 
+  // ── Top-level helpers used by both loadRoutes and recalculateRoutes ──
+
+  function popupContent(routeId, tier, count) {
+    const color = tier === 'priority' ? '#facc15' : '#60a5fa';
+    const label = tier === 'priority' ? 'Priority' : 'Secondary';
+    return `<div style="font-family:'IBM Plex Mono',monospace;color:#e2e8f0;min-width:160px">
+      <div style="font-size:18px;font-weight:600;color:${color};margin-bottom:4px">${routeId}</div>
+      <div style="font-size:10px;color:#94a3b8">${label} route</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:2px">Serves ${count} high-need NTA${count!==1?'s':''}</div>
+    </div>`;
+  }
+
+  function makeHandlers(tier, featureCollection) {
+    // Visual layer — just color, no pointer events
+    const visual = L.geoJSON(featureCollection, {
+      pane: 'routeVisual',
+      interactive: false,
+      style: tier === 'priority'
+        ? { color:'#facc15', weight:3, opacity:0.9 }
+        : { color:'#60a5fa', weight:2, opacity:0.8 }
+    });
+
+    // Hit layer — wide transparent line, handles all clicks
+    const hit = L.geoJSON(featureCollection, {
+      pane: 'routeHit',
+      style: { color:'transparent', weight:14, opacity:0 },
+      onEachFeature: (feature, layer) => {
+        layer.on('click', e => {
+          L.popup({ closeButton:true, offset:[0,-2] })
+            .setLatLng(e.latlng)
+            .setContent(popupContent(
+              feature.properties.route_id,
+              tier,
+              feature.properties.high_need_count
+            ))
+            .openOn(map);
+          L.DomEvent.stopPropagation(e);
+        });
+        layer.on('mouseover', () => { map.getContainer().style.cursor = 'pointer'; });
+        layer.on('mouseout',  () => { map.getContainer().style.cursor = ''; });
+      }
+    });
+
+    return { visual, hit };
+  }
+
+  // ── Load routes (initial classification from GeoJSON properties) ──
+
   async function loadRoutes() {
     try {
       const res = await fetch(ROUTES_GEOJSON_URL);
       if (!res.ok) return;
       const data = await res.json();
 
+      // Stash all features for later reclassification
+      window._allRouteFeatures = data.features;
+
       // Two panes: visual routes at z=450, hit areas at z=460
       map.createPane('routeVisual');
       map.getPane('routeVisual').style.zIndex = 450;
-      map.getPane('routeVisual').style.pointerEvents = 'none'; // visual only
+      map.getPane('routeVisual').style.pointerEvents = 'none';
 
       map.createPane('routeHit');
       map.getPane('routeHit').style.zIndex = 460;
@@ -233,51 +286,6 @@
 
       const priorityF  = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='priority') };
       const secondaryF = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='secondary') };
-
-      function popupContent(routeId, tier, count) {
-        const color = tier === 'priority' ? '#facc15' : '#60a5fa';
-        const label = tier === 'priority' ? 'Priority' : 'Secondary';
-        return `<div style="font-family:'IBM Plex Mono',monospace;color:#e2e8f0;min-width:160px">
-          <div style="font-size:18px;font-weight:600;color:${color};margin-bottom:4px">${routeId}</div>
-          <div style="font-size:10px;color:#94a3b8">${label} route</div>
-          <div style="font-size:10px;color:#94a3b8;margin-top:2px">Serves ${count} high-need NTA${count!==1?'s':''}</div>
-        </div>`;
-      }
-
-      function makeHandlers(tier, featureCollection) {
-        // Visual layer — just color, no pointer events
-        const visual = L.geoJSON(featureCollection, {
-          pane: 'routeVisual',
-          interactive: false,
-          style: tier === 'priority'
-            ? { color:'#facc15', weight:3, opacity:0.9 }
-            : { color:'#60a5fa', weight:2, opacity:0.8 }
-        });
-
-        // Hit layer — wide transparent line, handles all clicks
-        const hit = L.geoJSON(featureCollection, {
-          pane: 'routeHit',
-          style: { color:'transparent', weight:14, opacity:0 },
-          onEachFeature: (feature, layer) => {
-            layer.on('click', e => {
-              L.popup({ closeButton:true, offset:[0,-2] })
-                .setLatLng(e.latlng)
-                .setContent(popupContent(
-                  feature.properties.route_id,
-                  tier,
-                  feature.properties.high_need_count
-                ))
-                .openOn(map);
-              L.DomEvent.stopPropagation(e);
-            });
-            // Cursor feedback on hover
-            layer.on('mouseover', () => { map.getContainer().style.cursor = 'pointer'; });
-            layer.on('mouseout',  () => { map.getContainer().style.cursor = ''; });
-          }
-        });
-
-        return { visual, hit };
-      }
 
       const p = makeHandlers('priority',  priorityF);
       const s = makeHandlers('secondary', secondaryF);
@@ -302,6 +310,61 @@
 
     } catch(e) { console.warn('Could not load bus routes:', e); }
   }
+
+  // ── Reclassify routes when scores change (weight adjustment) ──
+
+  function recalculateRoutes() {
+    if (!window._allRouteFeatures.length) return;
+
+    // Get current top 20 NTAs by score
+    const top20 = new Set(
+      Object.entries(scores)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([code]) => code)
+    );
+
+    // Remove all existing route layers from the map
+    [routeVisualLayer.priority, routeVisualLayer.secondary].forEach(layer => {
+      if (layer) map.removeLayer(layer);
+    });
+    [routeHitLayer.priority, routeHitLayer.secondary].forEach(layer => {
+      if (layer) map.removeLayer(layer);
+    });
+
+    // Refilter the loaded GeoJSON data by new tier
+    const priorityFeatures  = { type:'FeatureCollection', features: [] };
+    const secondaryFeatures = { type:'FeatureCollection', features: [] };
+
+    window._allRouteFeatures.forEach(feature => {
+      const ntaList = feature.properties.nta_list || [];
+      const count = ntaList.filter(code => top20.has(code)).length;
+      if (count >= 3) {
+        feature.properties.tier = 'priority';
+        feature.properties.high_need_count = count;
+        priorityFeatures.features.push(feature);
+      } else if (count >= 1) {
+        feature.properties.tier = 'secondary';
+        feature.properties.high_need_count = count;
+        secondaryFeatures.features.push(feature);
+      }
+    });
+
+    // Rebuild layers with new classification
+    const p = makeHandlers('priority',  priorityFeatures);
+    const s = makeHandlers('secondary', secondaryFeatures);
+
+    routeVisualLayer.priority  = p.visual;
+    routeHitLayer.priority     = p.hit;
+    routeVisualLayer.secondary = s.visual;
+    routeHitLayer.secondary    = s.hit;
+
+    // Re-add based on current toggle state
+    if (document.getElementById('toggle-priority').checked)  { p.visual.addTo(map); p.hit.addTo(map); }
+    if (document.getElementById('toggle-secondary').checked) { s.visual.addTo(map); s.hit.addTo(map); }
+  }
+
+  // ── Color helpers ──
 
   function lerpColor(a, b, t) {
     const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
@@ -353,6 +416,8 @@
     });
   }
 
+  // ── Tooltip ──
+
   function positionTooltip() {
     if (!floatingTooltip) return;
     const x=lastMousePos.x+14;
@@ -403,6 +468,8 @@
 
   function hideTooltip() { if (floatingTooltip) floatingTooltip.style.display='none'; }
 
+  // ── Stats & top list ──
+
   function updateStats() {
     const vals=Object.values(scores).filter(v=>v!==null&&v!==undefined);
     if (!vals.length) return;
@@ -438,6 +505,8 @@
     `;
   }
 
+  // ── Recalculate scores + reclassify routes ──
+
   function recalculateScores() {
     if (!componentScores) return;
     scores={};
@@ -452,7 +521,10 @@
     if (geojsonLayer) geojsonLayer.eachLayer(l=>l.setStyle(styleFeature(l.feature)));
     updateStats();
     updateTopList();
+    recalculateRoutes();
   }
+
+  // ── Weight sliders ──
 
   function updateWeightSum() {
     const inputs=document.querySelectorAll('.weight-input-field');
@@ -503,6 +575,8 @@
     });
     updateWeightSum();
   }
+
+  // ── Init ──
 
   async function initMap() {
     await loadScores();
