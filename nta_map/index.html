@@ -319,7 +319,7 @@
     // Get current high-need NTAs by score threshold
     const highNeedNTAs = new Set(
       Object.entries(scores)
-        .filter(([_, s]) => s >= 0.7)
+        .filter(([_, s]) => s >= 0.8)
         .map(([code]) => code)
     );
 
