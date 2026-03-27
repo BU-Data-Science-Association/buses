@@ -440,8 +440,7 @@
         <hr class="tooltip-divider">
         <div class="tooltip-score-label" style="margin-bottom:6px">Score Breakdown</div>
         <div class="tooltip-components">
-          ${[['Income',comp.income],['Car',comp.car],['Bus/Subway',comp.bus_subway],['Reliability',comp.reliability],['Ridership',comp.ridership]]
-            .map(([l,v])=>`<div class="tooltip-component-row">
+${[['Income',comp.income * currentWeights.income],['Car',comp.car * currentWeights.car],['Bus/Subway',comp.bus_subway * currentWeights.bus_subway],['Reliability',comp.reliability * currentWeights.reliability],['Ridership',comp.ridership * currentWeights.ridership]]            .map(([l,v])=>`<div class="tooltip-component-row">
               <span class="tooltip-component-name">${l}</span>
               <div class="tooltip-component-bar-wrap"><div class="tooltip-component-bar-fill" style="width:${Math.round(v*100)}%"></div></div>
               <span class="tooltip-component-val">${v.toFixed(2)}</span>
