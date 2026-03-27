@@ -267,50 +267,35 @@
   // ── Load routes (initial classification from GeoJSON properties) ──
 
   async function loadRoutes() {
-    try {
-      const res = await fetch(ROUTES_GEOJSON_URL);
-      if (!res.ok) return;
-      const data = await res.json();
+  try {
+    const res = await fetch(ROUTES_GEOJSON_URL);
+    if (!res.ok) return;
+    const data = await res.json();
 
-      // Stash all features for later reclassification
-      window._allRouteFeatures = data.features;
+    window._allRouteFeatures = data.features;
 
-      // Two panes: visual routes at z=450, hit areas at z=460
-      map.createPane('routeVisual');
-      map.getPane('routeVisual').style.zIndex = 450;
-      map.getPane('routeVisual').style.pointerEvents = 'none';
+    map.createPane('routeVisual');
+    map.getPane('routeVisual').style.zIndex = 450;
+    map.getPane('routeVisual').style.pointerEvents = 'none';
 
-      map.createPane('routeHit');
-      map.getPane('routeHit').style.zIndex = 460;
-      map.getPane('routeHit').style.pointerEvents = 'auto';
+    map.createPane('routeHit');
+    map.getPane('routeHit').style.zIndex = 460;
+    map.getPane('routeHit').style.pointerEvents = 'auto';
 
-      const priorityF  = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='priority') };
-      const secondaryF = { type:'FeatureCollection', features: data.features.filter(f => f.properties.tier==='secondary') };
+    // Classify dynamically based on current scores
+    recalculateRoutes();
 
-      const p = makeHandlers('priority',  priorityF);
-      const s = makeHandlers('secondary', secondaryF);
+    document.getElementById('toggle-priority').addEventListener('change', e => {
+      if (e.target.checked) { routeVisualLayer.priority.addTo(map); routeHitLayer.priority.addTo(map); }
+      else { map.removeLayer(routeVisualLayer.priority); map.removeLayer(routeHitLayer.priority); }
+    });
+    document.getElementById('toggle-secondary').addEventListener('change', e => {
+      if (e.target.checked) { routeVisualLayer.secondary.addTo(map); routeHitLayer.secondary.addTo(map); }
+      else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
+    });
 
-      routeVisualLayer.priority  = p.visual;
-      routeHitLayer.priority     = p.hit;
-      routeVisualLayer.secondary = s.visual;
-      routeHitLayer.secondary    = s.hit;
-
-      // Priority on by default
-      p.visual.addTo(map);
-      p.hit.addTo(map);
-
-      document.getElementById('toggle-priority').addEventListener('change', e => {
-        if (e.target.checked) { routeVisualLayer.priority.addTo(map); routeHitLayer.priority.addTo(map); }
-        else { map.removeLayer(routeVisualLayer.priority); map.removeLayer(routeHitLayer.priority); }
-      });
-      document.getElementById('toggle-secondary').addEventListener('change', e => {
-        if (e.target.checked) { routeVisualLayer.secondary.addTo(map); routeHitLayer.secondary.addTo(map); }
-        else { map.removeLayer(routeVisualLayer.secondary); map.removeLayer(routeHitLayer.secondary); }
-      });
-
-    } catch(e) { console.warn('Could not load bus routes:', e); }
-  }
-
+  } catch(e) { console.warn('Could not load bus routes:', e); }
+}
   // ── Reclassify routes when scores change (weight adjustment) ──
 
   function recalculateRoutes() {
