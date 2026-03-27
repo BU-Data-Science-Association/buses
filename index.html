@@ -175,10 +175,10 @@
   </aside>
 </main>
 <script>
-  const NTA_GEOJSON_URL      = './nynta2020.geojson';
-  const COMPONENT_SCORES_URL = './component_scores.json';
-  const SCORES_CSV_URL       = './bus_need_index_final.csv';
-  const ROUTES_GEOJSON_URL   = './bus_routes.geojson';
+  const NTA_GEOJSON_URL      = './nta_map/nynta2020.geojson';
+  const COMPONENT_SCORES_URL = './nta_map/ntacomponent_scores.json';
+  const SCORES_CSV_URL       = './nta_map/bus_need_index_final.csv';
+  const ROUTES_GEOJSON_URL   = './nta_map/bus_routes.geojson';
   const DEFAULT_WEIGHTS = { income:0.25, car:0.20, bus_subway:0.20, reliability:0.15, ridership:0.20 };
 
   let map, geojsonLayer, ntaData = null;
