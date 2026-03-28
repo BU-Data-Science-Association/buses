@@ -122,17 +122,28 @@ def point_in_ring(x, y, ring):
     return inside
 
 
+def ring_is_clockwise(ring):
+    """Return True if ring is clockwise (exterior in shapefiles)."""
+    n = len(ring)
+    area2 = sum(ring[i][0] * ring[(i+1)%n][1] - ring[(i+1)%n][0] * ring[i][1] for i in range(n))
+    return area2 < 0
+
+
 def point_in_polygon(x, y, rings):
-    """Check if point is in polygon (first ring is exterior, rest are holes)."""
+    """Check if point is in polygon, handling multipart polygons.
+    Clockwise rings are exteriors, counter-clockwise are holes."""
     if not rings:
         return False
-    if not point_in_ring(x, y, rings[0]):
-        return False
-    # Check holes
-    for ring in rings[1:]:
-        if point_in_ring(x, y, ring):
-            return False
-    return True
+    for ring in rings:
+        if ring_is_clockwise(ring):
+            # Exterior ring — if point is inside, check subsequent holes
+            if point_in_ring(x, y, ring):
+                return True
+        else:
+            # Hole — if point is inside a hole, it's excluded
+            if point_in_ring(x, y, ring):
+                return False
+    return False
 
 
 def bbox_of_ring(ring):
@@ -167,11 +178,12 @@ def main():
 
     # All 5 borough GTFS folders
     borough_folders = {
-        'gtfs_bx': 'Bronx',
-        'gtfs_b':  'Brooklyn',
-        'gtfs_m':  'Manhattan',
-        'gtfs_q':  'Queens',
-        'gtfs_si': 'Staten Island',
+        'gtfs_bx':    'Bronx',
+        'gtfs_b':     'Brooklyn',
+        'gtfs_m':     'Manhattan',
+        'gtfs_q':     'Queens',
+        'gtfs_si':    'Staten Island',
+        'gtfs_busco': 'Bus Company',
     }
 
     print("Reading NTA shapefile...")
