@@ -110,7 +110,7 @@ buses/
 │   ├── election_correlation.py          # Correlation with 2025 mayoral election results
 │   └── nta_mayoral_results_2025_general.csv # Election data by NTA
 │
-├── map/                                 # Interactive web map
+├── nta_map/                                 # Interactive web map
 │   ├── index.html                       # Leaflet.js map application
 │   ├── get_routes.ipynb                 # Generates bus route GeoJSON
 │   ├── bus_need_index_final.csv         # Score data consumed by the map
