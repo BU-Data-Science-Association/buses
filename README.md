@@ -2,7 +2,7 @@
 
 A data-driven analysis measuring which New York City neighborhoods would benefit most from improved bus service. The **Bus Need Index** scores all 215 Neighborhood Tabulation Areas (NTAs) across NYC on a 0–1 scale, synthesizing income, car dependency, subway access, bus reliability, and ridership data into a single composite metric — visualized through an interactive web map.
 
-This project was **selected via public vote to be presented at the NYC School of Data Conference**.
+This project earned a presentation slot at the NYC School of Data Conference after winning a popular vote among attendees.
 
 We also have a **blog post** accompanying this project with a deeper narrative walkthrough of our findings and methodology.
 
