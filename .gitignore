@@ -1,0 +1,24 @@
+# Large datasets
+segment_speeds.csv
+MTA_Bus_Wait_Assessment__Beginning_2015.csv
+
+# Zip archives (raw GTFS downloads)
+gtfs_b.zip
+**/gtfs_busco.zip
+
+# Extracted duplicates at root
+/gtfs_b/
+
+# Empty/temp directories
+_data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+
+# IDE / tooling
+.claude/
