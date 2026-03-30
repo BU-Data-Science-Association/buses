@@ -59,7 +59,7 @@ The project includes a self-contained interactive web map built with **Leaflet.j
 ### Running the Map Locally
 
 ```bash
-cd map
+cd nta_map
 python -m http.server 8000
 ```
 
