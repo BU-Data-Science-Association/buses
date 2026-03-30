@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # Load data
 election = pd.read_csv('nta_mayoral_results_2025_general.csv')
-bus_need = pd.read_csv('merge_datasets/bus_need_index_final_full.csv')
+bus_need = pd.read_csv('../merge_datasets/bus_need_index_final_full.csv')
 
 # Compute alternate index WITHOUT car_score (renormalized weights)
 W_INCOME      = 0.25

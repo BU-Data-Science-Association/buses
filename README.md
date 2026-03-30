@@ -59,7 +59,7 @@ The project includes a self-contained interactive web map built with **Leaflet.j
 ### Running the Map Locally
 
 ```bash
-cd nta_map
+cd map
 python -m http.server 8000
 ```
 
@@ -74,20 +74,24 @@ buses/
 ├── README.md
 ├── LICENSE                              # MIT License
 │
-├── income_by_nta/                       # Income component
-│   ├── income_by_nta.ipynb              # Census tract income → NTA-level income score
-│   ├── tract_income.csv                 # Census B19013 median household income
-│   └── tract_nta_crosswalk.csv          # Census tract → NTA mapping
-│
-├── nta_bus_mapping/                     # Geospatial bus/subway stop assignments
+├── bus_stops/                           # Geospatial bus/subway stop assignments
 │   ├── stops_to_nta.py                  # Maps 11,500+ bus stops to NTAs via point-in-polygon
 │   ├── comparison_metric_bus_subway.py  # Computes bus dependency ratio per NTA
 │   ├── data/
 │   │   ├── gtfs_b/, gtfs_bx/, gtfs_m/, gtfs_q/, gtfs_si/   # MTA GTFS feeds (5 boroughs)
 │   │   ├── gtfs_subway/                 # Subway GTFS data
 │   │   └── nynta2020_26a/              # NYC NTA shapefile (EPSG:2263)
-│   └── nta_subway_mapping/
+│   └── subway_stops/
 │       └── subway_nta_mapping.py        # Maps subway stations to NTAs
+│
+├── income_by_nta/                       # Income component
+│   ├── income_by_nta.ipynb              # Census tract income → NTA-level income score
+│   ├── tract_income.csv                 # Census B19013 median household income
+│   └── tract_nta_crosswalk.csv          # Census tract → NTA mapping
+│
+├── lateness/                            # Bus speed & lateness analysis
+│   ├── buses.ipynb                      # Segment-level speed EDA and scheduled vs actual comparison
+│   └── route_lateness_by_borough.py     # Computes weighted lateness per route per borough
 │
 ├── merge_datasets/                      # Central index calculation
 │   ├── merge_datasets.ipynb             # Combines all 5 scores → final Bus Need Index
@@ -102,16 +106,17 @@ buses/
 │   ├── env_analysis.ipynb               # Air quality analysis by NTA
 │   └── nta_demographics_clean.csv       # Demographic variables per NTA
 │
-├── nta_map/                             # Interactive web map
+├── election_analysis/                   # Election correlation analysis
+│   ├── election_correlation.py          # Correlation with 2025 mayoral election results
+│   └── nta_mayoral_results_2025_general.csv # Election data by NTA
+│
+├── map/                                 # Interactive web map
 │   ├── index.html                       # Leaflet.js map application
 │   ├── get_routes.ipynb                 # Generates bus route GeoJSON
 │   ├── bus_need_index_final.csv         # Score data consumed by the map
 │   ├── component_scores.json            # Per-NTA score breakdown for tooltips
 │   ├── nynta2020.geojson                # NTA boundary polygons
 │   └── bus_routes.geojson               # Bus routes classified by priority
-│
-├── election_correlation.py              # Correlation with 2025 mayoral election results
-├── nta_mayoral_results_2025_general.csv # Election data by NTA
 │
 └── variable_files/                      # Documentation
     └── bus_vs_subway_by_nta.md          # Methodology explanation for bus/subway metric
