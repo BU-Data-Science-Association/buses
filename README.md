@@ -4,7 +4,7 @@ A data-driven analysis measuring which New York City neighborhoods would benefit
 
 This project earned a presentation slot at the NYC School of Data Conference after winning a popular vote among attendees.
 
-We also have a **blog post** accompanying this project with a deeper narrative walkthrough of our findings and methodology.
+We also have a **[blog post](https://www.lesswrong.com/posts/P2kFeCt4bkKyzt2HS/mapping-transit-equity-in-nyc)** accompanying this project with a deeper narrative walkthrough of our findings and methodology.
 
 Check out our interactive map here: https://busneedmap.netlify.app/
 
